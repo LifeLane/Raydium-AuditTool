@@ -32,24 +32,40 @@ export default function CryptoValidatorPage() {
   }, []);
 
   useEffect(() => {
-    if (isClient && typeof window.ethereum === 'undefined') {
+    if (!isClient) return;
+
+    if (typeof window.ethereum === 'undefined') {
       setError("No Ethereum-compatible wallet detected. Please install MetaMask or another compatible wallet extension.");
-    } else if (isClient && window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+    } else if (window.ethereum) {
+      const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length > 0) {
           setAccount(accounts[0]);
+          setError(null); // Clear error if user connects/changes account successfully
         } else {
           setAccount(null);
           setError("Wallet disconnected. Please connect your wallet.");
         }
-      });
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+
       window.ethereum.request({ method: 'eth_accounts' })
         .then((accounts: string[]) => {
           if (accounts.length > 0) {
             setAccount(accounts[0]);
+            setError(null); // Clear error if already connected from a previous session
           }
         })
-        .catch((err: any) => console.error("Error fetching accounts initially: ", err));
+        .catch((err: any) => {
+          console.warn("Error attempting to fetch existing accounts on load (this is a passive check):", err);
+          // Don't set a UI error here as this is a passive check.
+        });
+      
+      return () => {
+        if (window.ethereum?.removeListener) {
+          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        }
+      };
     }
   }, [isClient]);
 
@@ -58,6 +74,13 @@ export default function CryptoValidatorPage() {
       setError("No Ethereum-compatible wallet detected. Please install MetaMask or another compatible wallet extension.");
       return;
     }
+
+    if (typeof window.ethereum.request !== 'function') {
+      setError("The detected Ethereum wallet provider is not standard or might be corrupted. Please check your wallet extension.");
+      console.error("Wallet provider issue: window.ethereum.request is not a function.", window.ethereum);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
@@ -68,7 +91,7 @@ export default function CryptoValidatorPage() {
          setError("No accounts found. Please ensure your wallet is set up correctly.");
       }
     } catch (err: any) {
-      setAccount(null); // Reset account on any error
+      setAccount(null); 
       if (err.message && typeof err.message === 'string' && err.message.includes("Nightly is not initialized")) {
         setError("Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
         console.warn("Nightly wallet initialization issue detected and handled for UI.", err);
@@ -140,7 +163,7 @@ export default function CryptoValidatorPage() {
       }
     } finally {
       setIsLoading(false);
-      setIsProcessingValidation(false); // Ensure this is reset in case of payment error
+      setIsProcessingValidation(false); 
     }
   };
 
