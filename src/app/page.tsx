@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
@@ -32,9 +33,8 @@ export default function CryptoValidatorPage() {
 
   useEffect(() => {
     if (isClient && typeof window.ethereum === 'undefined') {
-      setError("MetaMask not detected. Please install MetaMask or another Ethereum-compatible wallet extension.");
+      setError("No Ethereum-compatible wallet detected. Please install MetaMask or another compatible wallet extension.");
     } else if (isClient && window.ethereum) {
-      // Listen for account changes
       window.ethereum.on('accountsChanged', (accounts: string[]) => {
         if (accounts.length > 0) {
           setAccount(accounts[0]);
@@ -43,7 +43,6 @@ export default function CryptoValidatorPage() {
           setError("Wallet disconnected. Please connect your wallet.");
         }
       });
-      // Pre-connect if already authorized
       window.ethereum.request({ method: 'eth_accounts' })
         .then((accounts: string[]) => {
           if (accounts.length > 0) {
@@ -56,7 +55,7 @@ export default function CryptoValidatorPage() {
 
   const handleConnectWallet = async () => {
     if (typeof window.ethereum === 'undefined') {
-      setError("MetaMask not detected. Please install MetaMask extension.");
+      setError("No Ethereum-compatible wallet detected. Please install MetaMask or another compatible wallet extension.");
       return;
     }
     setIsLoading(true);
@@ -70,10 +69,12 @@ export default function CryptoValidatorPage() {
       }
     } catch (err: any) {
       console.error("Wallet connection error:", err);
-      if (err.code === 4001) {
+      if (err.message && typeof err.message === 'string' && err.message.includes("Nightly is not initialized")) {
+        setError("Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
+      } else if (err.code === 4001) {
         setError("Wallet connection rejected by user.");
       } else {
-        setError("Failed to connect wallet. Please try again.");
+        setError("Failed to connect wallet. Please ensure your wallet (e.g., MetaMask) is properly installed, configured, and selected, then try again.");
       }
       setAccount(null);
     } finally {
@@ -113,9 +114,8 @@ export default function CryptoValidatorPage() {
       });
       setTransactionHash(txHash);
       
-      // Simulate token validation and market ID generation
       setIsProcessingValidation(true);
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate 3s processing
+      await new Promise(resolve => setTimeout(resolve, 3000)); 
       setIsProcessingValidation(false);
 
       setShowSuccessDialog(true);
@@ -123,7 +123,7 @@ export default function CryptoValidatorPage() {
       console.error("Transaction error:", err);
       if (err.code === 4001) {
         setError("Transaction rejected by user.");
-      } else if (err.message && err.message.includes("insufficient funds")) {
+      } else if (err.message && typeof err.message === 'string' && err.message.includes("insufficient funds")) {
         setError("Insufficient funds for the transaction.");
       } 
       else {
@@ -167,7 +167,7 @@ export default function CryptoValidatorPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           {!account ? (
-            <Button onClick={handleConnectWallet} disabled={isLoading || typeof window.ethereum === 'undefined'} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button onClick={handleConnectWallet} disabled={isLoading || (isClient && typeof window.ethereum === 'undefined')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
               {isLoading ? (
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               ) : (
