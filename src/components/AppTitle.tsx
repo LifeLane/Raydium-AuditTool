@@ -9,8 +9,10 @@ const AppTitle = () => (
       <h1 className="text-3xl sm:text-4xl font-headline font-bold text-primary">CryptoValidator</h1>
     </div>
     <p className="text-base sm:text-lg text-muted-foreground max-w-md px-2">
-      Securely validate your token and set up its market presence by simulating the process.
+      Secure your token's market ID by validating it and completing an on-chain transaction.
     </p>
   </div>
 );
 export default AppTitle;
+
+    
