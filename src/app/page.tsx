@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 declare global {
   interface Window {
-    ethereum?: any; 
+    ethereum?: any;
   }
 }
 
@@ -31,47 +31,6 @@ export default function CryptoValidatorPage() {
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    if (!isClient) return;
-
-    if (typeof window.ethereum === 'undefined') {
-      setError("No Ethereum wallet detected. Please install an Ethereum-compatible wallet like MetaMask, ensure it's enabled, and grant this site permission to access it.");
-      setAccount(null); 
-    } else {
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
-          setError(null); 
-        } else {
-          setAccount(null);
-          setError("Wallet disconnected or no accounts approved. Please connect your wallet and approve account access for this site.");
-        }
-      };
-
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-
-      window.ethereum.request({ method: 'eth_accounts' })
-        .then((accounts: string[]) => {
-          if (accounts.length > 0) {
-            setAccount(accounts[0]);
-            setError(null); 
-          } else {
-            setAccount(null); 
-          }
-        })
-        .catch((err: any) => {
-          console.warn("Error attempting to passively fetch existing accounts on load:", err);
-          setAccount(null); 
-        });
-      
-      return () => {
-        if (window.ethereum?.removeListener) {
-          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        }
-      };
-    }
-  }, [isClient]);
-
   const getErrorMessageString = (err: any): string => {
     let message = '';
     if (err && typeof err.message === 'string') {
@@ -86,6 +45,61 @@ export default function CryptoValidatorPage() {
     }
     return message;
   };
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    if (typeof window.ethereum === 'undefined') {
+      setError("No Ethereum wallet detected. Please install an Ethereum-compatible wallet like MetaMask, ensure it's enabled, and grant this site permission to access it.");
+      setAccount(null);
+    } else {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length > 0) {
+          setAccount(accounts[0]);
+          setError(null);
+        } else {
+          setAccount(null);
+          setError("Wallet disconnected or no accounts approved. Please connect your wallet and approve account access for this site.");
+        }
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+      window.ethereum.request({ method: 'eth_accounts' })
+        .then((accounts: string[]) => {
+          if (accounts.length > 0) {
+            setAccount(accounts[0]);
+            setError(null); // Provider working, accounts found, clear any error.
+          } else {
+            setAccount(null);
+            setError(null); // Provider working, no accounts pre-approved. Clear any provider-level error.
+          }
+        })
+        .catch((err: any) => {
+          setAccount(null); // Ensure account is null on error
+          const errorMessageString = getErrorMessageString(err);
+
+          if (errorMessageString.includes("Nightly is not initialized")) {
+            setError("Your detected Ethereum wallet (Nightly) is not initialized. Please ensure it's set up correctly or select a different active wallet like MetaMask.");
+            console.warn("Passive check: Nightly wallet initialization issue detected.", err);
+          } else if (errorMessageString.toLowerCase().includes("unexpected error")) {
+            setError("Your detected Ethereum wallet provider encountered an unexpected error during the initial check. Please ensure your wallet is up to date, or try connecting manually.");
+            console.error("Passive check: Wallet provider error (unexpected from extension).", err);
+          } else {
+            console.warn("Error attempting to passively fetch existing accounts on load:", err);
+            // Do not set a generic UI error for other passive check failures,
+            // as it might be too intrusive before user action.
+          }
+        });
+
+      return () => {
+        if (window.ethereum?.removeListener) {
+          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        }
+      };
+    }
+  }, [isClient]);
+
 
   const handleConnectWallet = async () => {
     if (typeof window.ethereum === 'undefined') {
@@ -106,29 +120,29 @@ export default function CryptoValidatorPage() {
     }
 
     setIsLoading(true);
-    setError(null); 
+    setError(null);
 
     try {
       console.log("Attempting to connect wallet via eth_requestAccounts...");
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      
+
       if (accounts && accounts.length > 0) {
         setAccount(accounts[0]);
-        setError(null); 
+        setError(null);
         console.log("Wallet connected successfully. Account:", accounts[0]);
       } else {
-        setAccount(null); 
+        setAccount(null);
         setError("Wallet connected, but no accounts were found or selected. Please ensure your wallet is set up correctly and you've approved account access for this site.");
         console.warn("eth_requestAccounts returned no accounts or an empty array.");
       }
     } catch (err: any) {
-      setAccount(null); 
+      setAccount(null);
       const errorMessageString = getErrorMessageString(err);
 
       if (errorMessageString.includes("Nightly is not initialized")) {
         setError("Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
         console.warn("Nightly wallet initialization issue detected and handled for UI.", err);
-      } else if (err.code === 4001) { 
+      } else if (err.code === 4001) {
         setError("Wallet connection rejected by user.");
         console.warn("Wallet connection rejected by user, UI error set.", err);
       } else if (errorMessageString.toLowerCase().includes("unexpected error")) {
@@ -174,16 +188,16 @@ export default function CryptoValidatorPage() {
         params: [transactionParameters],
       });
       setTransactionHash(txHash);
-      
+
       setIsProcessingValidation(true);
-      await new Promise(resolve => setTimeout(resolve, 3000)); 
+      await new Promise(resolve => setTimeout(resolve, 3000));
       setIsProcessingValidation(false);
 
       setShowSuccessDialog(true);
     } catch (err: any) {
       const errorMessageString = getErrorMessageString(err);
-      
-      if (err.code === 4001) { 
+
+      if (err.code === 4001) {
         setError("Transaction rejected by user.");
         console.warn("Transaction rejected by user, UI error set.", err);
       } else if (errorMessageString.toLowerCase().includes("insufficient funds")) {
@@ -198,7 +212,7 @@ export default function CryptoValidatorPage() {
       }
     } finally {
       setIsLoading(false);
-      setIsProcessingValidation(false); 
+      setIsProcessingValidation(false);
     }
   };
 
@@ -312,7 +326,3 @@ export default function CryptoValidatorPage() {
     </main>
   );
 }
-    
-
-    
-
