@@ -27,57 +27,6 @@ export default function CryptoValidatorPage() {
   const [showSuccessDialog, setShowSuccessDialog] = useState<boolean>(false);
   const [hasProvider, setHasProvider] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    setIsClient(true);
-    if (typeof window.ethereum !== 'undefined') {
-      console.log("window.ethereum detected. Provider:", window.ethereum);
-      setHasProvider(true);
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length === 0) {
-          console.warn("Wallet disconnected or no accounts approved by user.");
-          setAccount(null);
-          setError("Wallet disconnected. Please ensure your wallet is connected and has approved this site.");
-        } else {
-          setAccount(accounts[0]);
-          setError(null); 
-        }
-      };
-
-      const fetchInitialAccount = async () => {
-        try {
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-          if (accounts.length > 0) {
-            setAccount(accounts[0]);
-            setError(null);
-          } else {
-            setAccount(null); // Ensure account is null if no accounts are passively found
-          }
-        } catch (err: any) {
-          const errorMessageString = getErrorMessageString(err);
-          console.warn("Error fetching initial accounts (passive check):", errorMessageString);
-           if (errorMessageString.includes("Nightly is not initialized")) {
-            setError("Detected Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
-          } else {
-            // Do not set a general error here for passive checks to avoid premature error messages
-            // unless it's a known issue like Nightly
-          }
-        }
-      };
-
-      fetchInitialAccount();
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-
-      return () => {
-        if (window.ethereum && typeof window.ethereum.removeListener === 'function') {
-          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        }
-      };
-    } else {
-      console.warn("window.ethereum not detected on page load.");
-      setHasProvider(false);
-    }
-  }, []);
-  
   const getErrorMessageString = (err: any): string => {
     if (!err) {
       return 'An unknown error occurred (no error object provided).';
@@ -103,14 +52,73 @@ export default function CryptoValidatorPage() {
     return 'An unknown error occurred.';
   };
 
+  useEffect(() => {
+    setIsClient(true);
+    if (typeof window.ethereum !== 'undefined') {
+      // Rigorous check for a valid EIP-1193 provider
+      if (typeof window.ethereum.request === 'function' && typeof window.ethereum.on === 'function' && typeof window.ethereum.removeListener === 'function') {
+        console.log("window.ethereum detected and seems to be a valid EIP-1193 provider. Provider:", window.ethereum);
+        setHasProvider(true);
+
+        const handleAccountsChanged = (accounts: string[]) => {
+          if (accounts.length === 0) {
+            console.warn("Wallet disconnected or no accounts approved by user.");
+            setAccount(null);
+            setError("Wallet disconnected. Please ensure your wallet is connected and has approved this site.");
+          } else {
+            setAccount(accounts[0]);
+            setError(null); 
+          }
+        };
+
+        const fetchInitialAccount = async () => {
+          try {
+            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            if (accounts.length > 0) {
+              setAccount(accounts[0]);
+              setError(null);
+            } else {
+              setAccount(null);
+            }
+          } catch (err: any) {
+            const errorMessageString = getErrorMessageString(err);
+            console.warn("Error fetching initial accounts (passive check):", errorMessageString);
+            if (errorMessageString.includes("Nightly is not initialized")) {
+              setError("Detected Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
+            } else {
+              // Do not set a general error here for passive checks to avoid premature error messages
+              // unless it's a known issue like Nightly
+            }
+          }
+        };
+
+        fetchInitialAccount();
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+        return () => {
+          if (window.ethereum && typeof window.ethereum.removeListener === 'function') {
+            window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+          }
+        };
+      } else {
+        console.warn("window.ethereum detected, but it does not appear to be a standard EIP-1193 provider (missing request, on, or removeListener method). Provider object:", window.ethereum);
+        setHasProvider(false);
+        setError("A browser feature is interfering with wallet detection, or your wallet extension is not functioning correctly. Please check for conflicting browser extensions (e.g., other crypto wallets, ad blockers that might interfere) and disable them, or ensure your primary Ethereum wallet (e.g., MetaMask, Trust Wallet) is active and correctly installed.");
+      }
+    } else {
+      console.warn("window.ethereum not detected on page load.");
+      setHasProvider(false);
+    }
+  }, []);
+  
   const handleConnectWallet = async () => {
     if (!window.ethereum) {
-      setError("No Ethereum wallet detected. Please install an Ethereum wallet like MetaMask or Trust Wallet extension and ensure it's active.");
+      setError("No Ethereum wallet detected. Please install an Ethereum wallet like MetaMask or Trust Wallet extension, ensure it's active, and that it has permission to access this site.");
       console.warn("handleConnectWallet: No Ethereum provider found (window.ethereum is undefined).");
       return;
     }
     if (typeof window.ethereum.request !== 'function') {
-      setError("The detected Ethereum wallet provider is not functioning correctly (missing request method). Please check your wallet extension or try a different browser.");
+      setError("The detected Ethereum wallet provider is not functioning correctly (missing request method). Please check your wallet extension, disable conflicting extensions, or try a different browser.");
       console.error("handleConnectWallet: window.ethereum.request is not a function. Provider:", window.ethereum);
       return;
     }
