@@ -44,7 +44,7 @@ export default function CryptoValidatorPage() {
           setError(null); 
         } else {
           setAccount(null);
-          setError("Wallet disconnected or no accounts approved. Please connect your wallet and approve account access.");
+          setError("Wallet disconnected or no accounts approved. Please connect your wallet and approve account access for this site.");
         }
       };
 
@@ -57,11 +57,13 @@ export default function CryptoValidatorPage() {
             setError(null); 
           } else {
             setAccount(null); 
+            // setError("No accounts found initially. Please connect your wallet."); // Potentially noisy if user hasn't connected yet
           }
         })
         .catch((err: any) => {
           console.warn("Error attempting to passively fetch existing accounts on load:", err);
           setAccount(null); 
+          // setError("Could not passively fetch accounts. Please try connecting your wallet manually.");
         });
       
       return () => {
@@ -108,13 +110,15 @@ export default function CryptoValidatorPage() {
       }
     } catch (err: any) {
       setAccount(null); 
-      if (err.message && typeof err.message === 'string' && err.message.includes("Nightly is not initialized")) {
+      const errorMessageString = (err && err.message && typeof err.message === 'string') ? err.message : (typeof err === 'string' ? err : '');
+
+      if (errorMessageString.includes("Nightly is not initialized")) {
         setError("Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
         console.warn("Nightly wallet initialization issue detected and handled for UI.", err);
       } else if (err.code === 4001) { 
         setError("Wallet connection rejected by user.");
         console.warn("Wallet connection rejected by user, UI error set.", err);
-      } else if (err.message && typeof err.message === 'string' && err.message.toLowerCase().includes("unexpected error")) {
+      } else if (errorMessageString.toLowerCase().includes("unexpected error")) {
         setError("An unexpected error occurred with your wallet extension. Please try again or ensure your wallet is up to date.");
         console.error("Wallet connection error (unexpected from extension):", err);
       } else {
@@ -164,13 +168,15 @@ export default function CryptoValidatorPage() {
 
       setShowSuccessDialog(true);
     } catch (err: any) {
+      const errorMessageString = (err && err.message && typeof err.message === 'string') ? err.message : (typeof err === 'string' ? err : '');
+      
       if (err.code === 4001) { 
         setError("Transaction rejected by user.");
         console.warn("Transaction rejected by user, UI error set.", err);
-      } else if (err.message && typeof err.message === 'string' && err.message.toLowerCase().includes("insufficient funds")) {
+      } else if (errorMessageString.toLowerCase().includes("insufficient funds")) {
         setError("Insufficient funds for the transaction.");
         console.warn("Transaction error: Insufficient funds. UI error set.", err);
-      } else if (err.message && typeof err.message === 'string' && err.message.toLowerCase().includes("unexpected error")) {
+      } else if (errorMessageString.toLowerCase().includes("unexpected error")) {
         setError("An unexpected error occurred with your wallet extension during the transaction. Please try again or ensure your wallet is up to date.");
         console.error("Transaction error (unexpected from extension):", err);
       } else {
