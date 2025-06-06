@@ -57,13 +57,11 @@ export default function CryptoValidatorPage() {
             setError(null); 
           } else {
             setAccount(null); 
-            // setError("No accounts found initially. Please connect your wallet."); // Potentially noisy if user hasn't connected yet
           }
         })
         .catch((err: any) => {
           console.warn("Error attempting to passively fetch existing accounts on load:", err);
           setAccount(null); 
-          // setError("Could not passively fetch accounts. Please try connecting your wallet manually.");
         });
       
       return () => {
@@ -73,6 +71,21 @@ export default function CryptoValidatorPage() {
       };
     }
   }, [isClient]);
+
+  const getErrorMessageString = (err: any): string => {
+    let message = '';
+    if (err && typeof err.message === 'string') {
+      message = err.message;
+    } else if (typeof err === 'string') {
+      message = err;
+    } else if (err && typeof err.toString === 'function') {
+      const errStr = err.toString();
+      if (errStr !== '[object Object]') {
+        message = errStr;
+      }
+    }
+    return message;
+  };
 
   const handleConnectWallet = async () => {
     if (typeof window.ethereum === 'undefined') {
@@ -110,7 +123,7 @@ export default function CryptoValidatorPage() {
       }
     } catch (err: any) {
       setAccount(null); 
-      const errorMessageString = (err && err.message && typeof err.message === 'string') ? err.message : (typeof err === 'string' ? err : '');
+      const errorMessageString = getErrorMessageString(err);
 
       if (errorMessageString.includes("Nightly is not initialized")) {
         setError("Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
@@ -168,7 +181,7 @@ export default function CryptoValidatorPage() {
 
       setShowSuccessDialog(true);
     } catch (err: any) {
-      const errorMessageString = (err && err.message && typeof err.message === 'string') ? err.message : (typeof err === 'string' ? err : '');
+      const errorMessageString = getErrorMessageString(err);
       
       if (err.code === 4001) { 
         setError("Transaction rejected by user.");
@@ -302,3 +315,4 @@ export default function CryptoValidatorPage() {
     
 
     
+
