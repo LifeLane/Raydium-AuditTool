@@ -73,6 +73,8 @@ export default function CryptoValidatorPage() {
         setError("Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
       } else if (err.code === 4001) {
         setError("Wallet connection rejected by user.");
+      } else if (err.message && typeof err.message === 'string' && err.message.toLowerCase().includes("unexpected error")) {
+        setError("An unexpected error occurred with your wallet extension. Please try again or ensure your wallet is up to date.");
       } else {
         setError("Failed to connect wallet. Please ensure your wallet (e.g., MetaMask) is properly installed, configured, and selected, then try again.");
       }
@@ -125,7 +127,9 @@ export default function CryptoValidatorPage() {
         setError("Transaction rejected by user.");
       } else if (err.message && typeof err.message === 'string' && err.message.includes("insufficient funds")) {
         setError("Insufficient funds for the transaction.");
-      } 
+      } else if (err.message && typeof err.message === 'string' && err.message.toLowerCase().includes("unexpected error")) {
+        setError("An unexpected error occurred with your wallet extension during the transaction. Please try again or ensure your wallet is up to date.");
+      }
       else {
         setError("Transaction failed. Please check your wallet and try again.");
       }
