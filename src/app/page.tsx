@@ -30,15 +30,16 @@ export default function CryptoValidatorPage() {
   useEffect(() => {
     setIsClient(true);
     if (typeof window.ethereum !== 'undefined') {
+      console.log("window.ethereum detected. Provider:", window.ethereum);
       setHasProvider(true);
       const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
-          console.warn("Wallet disconnected or no accounts approved.");
+          console.warn("Wallet disconnected or no accounts approved by user.");
           setAccount(null);
-          setError("Wallet disconnected. Please connect your wallet.");
+          setError("Wallet disconnected. Please ensure your wallet is connected and has approved this site.");
         } else {
           setAccount(accounts[0]);
-          setError(null); // Clear error on successful account change/connection
+          setError(null); 
         }
       };
 
@@ -48,6 +49,8 @@ export default function CryptoValidatorPage() {
           if (accounts.length > 0) {
             setAccount(accounts[0]);
             setError(null);
+          } else {
+            setAccount(null); // Ensure account is null if no accounts are passively found
           }
         } catch (err: any) {
           const errorMessageString = getErrorMessageString(err);
@@ -56,6 +59,7 @@ export default function CryptoValidatorPage() {
             setError("Detected Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
           } else {
             // Do not set a general error here for passive checks to avoid premature error messages
+            // unless it's a known issue like Nightly
           }
         }
       };
@@ -69,53 +73,60 @@ export default function CryptoValidatorPage() {
         }
       };
     } else {
+      console.warn("window.ethereum not detected on page load.");
       setHasProvider(false);
     }
   }, []);
   
   const getErrorMessageString = (err: any): string => {
-    let message = 'An unknown error occurred.';
-    if (err) {
-      if (typeof err.message === 'string' && err.message.trim() !== '') {
-        message = err.message;
-      } else if (typeof err === 'string' && err.trim() !== '') {
-        message = err;
-      } else if (err.toString && err.toString() !== '[object Object]' && err.toString().trim() !== '') {
-        message = err.toString();
-      }
+    if (!err) {
+      return 'An unknown error occurred (no error object provided).';
     }
-    return message;
+    if (typeof err.message === 'string' && err.message.trim() !== '') {
+      return err.message;
+    }
+    if (typeof err === 'string' && err.trim() !== '') {
+      return err;
+    }
+    if (typeof err.toString === 'function') {
+        const errStr = err.toString();
+        if (errStr !== '[object Object]' && errStr.trim() !== '') {
+            return errStr;
+        }
+    }
+    try {
+      const jsonError = JSON.stringify(err);
+      if (jsonError !== '{}') return jsonError;
+    } catch (e) {
+      // Fallthrough
+    }
+    return 'An unknown error occurred.';
   };
 
   const handleConnectWallet = async () => {
     if (!window.ethereum) {
-      setError("No Ethereum wallet detected. Please install an Ethereum wallet like MetaMask.");
-      console.warn("handleConnectWallet: No Ethereum provider found.");
+      setError("No Ethereum wallet detected. Please install an Ethereum wallet like MetaMask or Trust Wallet extension and ensure it's active.");
+      console.warn("handleConnectWallet: No Ethereum provider found (window.ethereum is undefined).");
       return;
     }
     if (typeof window.ethereum.request !== 'function') {
-      setError("The detected Ethereum wallet provider is not functioning correctly (missing request method). Please check your wallet extension.");
-      console.error("handleConnectWallet: window.ethereum.request is not a function.");
+      setError("The detected Ethereum wallet provider is not functioning correctly (missing request method). Please check your wallet extension or try a different browser.");
+      console.error("handleConnectWallet: window.ethereum.request is not a function. Provider:", window.ethereum);
       return;
     }
 
     setIsLoading(true);
     setError(null);
-    console.log("Attempting to connect wallet...");
+    console.log("Attempting to connect wallet using eth_requestAccounts...");
     try {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       if (accounts.length > 0) {
         setAccount(accounts[0]);
         setError(null); 
-        console.log("Wallet connected:", accounts[0]);
-        if(window.ethereum.isMetaMask) {
-            console.log("Connected via MetaMask.");
-        } else {
-            console.log("Connected via a non-MetaMask Ethereum provider.");
-        }
+        console.log("Wallet connected successfully. Account:", accounts[0], "Provider isMetaMask:", !!window.ethereum.isMetaMask);
       } else {
-        setError("No accounts found. Please ensure your wallet is set up and you've approved connection.");
-        console.warn("handleConnectWallet: eth_requestAccounts returned empty list.");
+        setError("No accounts found after connection attempt. Please ensure you've approved connection in your wallet and selected an account.");
+        console.warn("handleConnectWallet: eth_requestAccounts returned an empty list of accounts.");
         setAccount(null);
       }
     } catch (err: any) {
@@ -123,9 +134,9 @@ export default function CryptoValidatorPage() {
       if (errorMessageString.includes("Nightly is not initialized")) {
         setError("Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
         console.warn("Wallet connection error (Nightly):", errorMessageString);
-      } else if (err.code === 4001) {
+      } else if ((err as any).code === 4001) { // Standard EIP-1193 user rejection error
         setError("Wallet connection rejected by user.");
-        console.warn("Wallet connection rejected by user:", err);
+        console.warn("Wallet connection rejected by user (Error Code 4001):", err);
       } else if (errorMessageString.toLowerCase().includes("unexpected error")) {
          setError("An unexpected error occurred with your wallet. Please check your wallet extension or try again.");
          console.warn("Wallet connection unexpected error:", errorMessageString);
@@ -165,12 +176,12 @@ export default function CryptoValidatorPage() {
 
     setIsProcessingPayment(true);
     setError(null);
-    console.log(`handlePayment: Attempting transaction to ${RECIPIENT_ADDRESS} for ${TRANSACTION_AMOUNT_ETH_STRING} ETH...`);
+    console.log(`handlePayment: Attempting transaction to ${RECIPIENT_ADDRESS} for ${TRANSACTION_AMOUNT_ETH_STRING} ETH from account ${account}...`);
 
     try {
       if (!window.ethereum || typeof window.ethereum.request !== 'function') {
-        setError("Ethereum wallet provider is not available or not functioning correctly.");
-        console.error("handlePayment: window.ethereum.request is not available/function.");
+        setError("Ethereum wallet provider is not available or not functioning correctly. Cannot proceed with payment.");
+        console.error("handlePayment: window.ethereum.request is not available/function. Aborting transaction.");
         setIsProcessingPayment(false);
         return;
       }
@@ -181,24 +192,17 @@ export default function CryptoValidatorPage() {
           from: account,
           to: RECIPIENT_ADDRESS,
           value: TRANSACTION_VALUE_WEI_HEX,
-          // Gas parameters can be omitted; MetaMask usually handles them well.
-          // You might want to add them for more control in a production app.
-          // gas: '0x5208', // 21000 GWEI (standard transaction)
-          // gasPrice: await window.ethereum.request({ method: 'eth_gasPrice' }),
         }],
       });
       console.log("Transaction sent. Hash:", txHash);
-      // For a production app, you'd typically wait for the transaction to be mined
-      // and get a receipt here to confirm success.
-      // For this example, sending the transaction is considered "success".
       setShowSuccessDialog(true);
 
     } catch (err: any) {
       const errorMessageString = getErrorMessageString(err);
       console.error("Payment transaction error object:", JSON.stringify(err, null, 2));
-      if (err.code === 4001) { // User rejected the transaction
+      if ((err as any).code === 4001) { 
         setError("Transaction rejected by user.");
-        console.warn("Transaction rejected by user:", err);
+        console.warn("Transaction rejected by user (Error Code 4001):", err);
       } else if (errorMessageString.includes("Nightly is not initialized")) {
         setError("Nightly wallet is not initialized. Please ensure it's set up correctly before making a transaction.");
          console.warn("Payment error (Nightly):", errorMessageString);
@@ -247,7 +251,7 @@ export default function CryptoValidatorPage() {
           {!account ? (
             <Button 
               onClick={handleConnectWallet} 
-              disabled={isLoading || hasProvider === false} 
+              disabled={isLoading || (isClient && hasProvider === false)} 
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isLoading ? (
@@ -324,5 +328,3 @@ export default function CryptoValidatorPage() {
     </main>
   );
 }
-
-    
