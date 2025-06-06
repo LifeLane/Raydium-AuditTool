@@ -13,9 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 declare global {
   interface Window {
-    ethereum?: any; // Standard for Ethereum wallets like MetaMask
-    // Solana wallets like Solflare typically use window.solana or similar,
-    // which this app is not currently configured to support.
+    ethereum?: any; 
   }
 }
 
@@ -36,18 +34,17 @@ export default function CryptoValidatorPage() {
   useEffect(() => {
     if (!isClient) return;
 
-    // This app is designed for Ethereum-compatible wallets (e.g., MetaMask).
-    // It does not support Solana wallets like Solflare.
     if (typeof window.ethereum === 'undefined') {
       setError("No Ethereum wallet detected. Please install an Ethereum-compatible wallet like MetaMask, ensure it's enabled, and grant this site permission to access it.");
-    } else if (window.ethereum) {
+      setAccount(null); 
+    } else {
       const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length > 0) {
           setAccount(accounts[0]);
           setError(null); 
         } else {
           setAccount(null);
-          setError("Wallet disconnected. Please connect your wallet.");
+          setError("Wallet disconnected or no accounts approved. Please connect your wallet and approve account access.");
         }
       };
 
@@ -58,10 +55,13 @@ export default function CryptoValidatorPage() {
           if (accounts.length > 0) {
             setAccount(accounts[0]);
             setError(null); 
+          } else {
+            setAccount(null); 
           }
         })
         .catch((err: any) => {
-          console.warn("Error attempting to fetch existing accounts on load (this is a passive check):", err);
+          console.warn("Error attempting to passively fetch existing accounts on load:", err);
+          setAccount(null); 
         });
       
       return () => {
@@ -78,6 +78,12 @@ export default function CryptoValidatorPage() {
       return;
     }
 
+    if (window.ethereum.isMetaMask) {
+      console.log("MetaMask Ethereum provider detected by isMetaMask flag.");
+    } else {
+      console.log("Non-MetaMask Ethereum provider detected or isMetaMask flag not present.", window.ethereum);
+    }
+
     if (typeof window.ethereum.request !== 'function') {
       setError("The detected Ethereum wallet provider is not standard or might be corrupted. Please check your wallet extension (e.g., ensure MetaMask is your active Ethereum wallet).");
       console.error("Wallet provider issue: window.ethereum.request is not a function.", window.ethereum);
@@ -85,25 +91,32 @@ export default function CryptoValidatorPage() {
     }
 
     setIsLoading(true);
-    setError(null);
+    setError(null); 
+
     try {
+      console.log("Attempting to connect wallet via eth_requestAccounts...");
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      if (accounts.length > 0) {
+      
+      if (accounts && accounts.length > 0) {
         setAccount(accounts[0]);
+        setError(null); 
+        console.log("Wallet connected successfully. Account:", accounts[0]);
       } else {
-         setError("No accounts found. Please ensure your wallet is set up correctly and you've approved the connection.");
+        setAccount(null); 
+        setError("Wallet connected, but no accounts were found or selected. Please ensure your wallet is set up correctly and you've approved account access for this site.");
+        console.warn("eth_requestAccounts returned no accounts or an empty array.");
       }
     } catch (err: any) {
       setAccount(null); 
       if (err.message && typeof err.message === 'string' && err.message.includes("Nightly is not initialized")) {
         setError("Nightly wallet is not initialized. Please ensure it's set up correctly or try a different wallet like MetaMask.");
         console.warn("Nightly wallet initialization issue detected and handled for UI.", err);
-      } else if (err.code === 4001) { // Standard EIP-1193 user rejection error
+      } else if (err.code === 4001) { 
         setError("Wallet connection rejected by user.");
         console.warn("Wallet connection rejected by user, UI error set.", err);
       } else if (err.message && typeof err.message === 'string' && err.message.toLowerCase().includes("unexpected error")) {
         setError("An unexpected error occurred with your wallet extension. Please try again or ensure your wallet is up to date.");
-        console.error("Wallet connection error (unexpected):", err);
+        console.error("Wallet connection error (unexpected from extension):", err);
       } else {
         setError("Failed to connect wallet. Please ensure your Ethereum wallet (e.g., MetaMask) is properly installed, configured, and selected, then try again.");
         console.error("Generic wallet connection error:", err);
@@ -151,7 +164,7 @@ export default function CryptoValidatorPage() {
 
       setShowSuccessDialog(true);
     } catch (err: any) {
-      if (err.code === 4001) { // Standard EIP-1193 user rejection error
+      if (err.code === 4001) { 
         setError("Transaction rejected by user.");
         console.warn("Transaction rejected by user, UI error set.", err);
       } else if (err.message && typeof err.message === 'string' && err.message.toLowerCase().includes("insufficient funds")) {
@@ -159,7 +172,7 @@ export default function CryptoValidatorPage() {
         console.warn("Transaction error: Insufficient funds. UI error set.", err);
       } else if (err.message && typeof err.message === 'string' && err.message.toLowerCase().includes("unexpected error")) {
         setError("An unexpected error occurred with your wallet extension during the transaction. Please try again or ensure your wallet is up to date.");
-        console.error("Transaction error (unexpected):", err);
+        console.error("Transaction error (unexpected from extension):", err);
       } else {
         setError("Transaction failed. Please check your wallet and try again.");
         console.error("Generic transaction error:", err);
@@ -280,5 +293,6 @@ export default function CryptoValidatorPage() {
     </main>
   );
 }
+    
 
     
