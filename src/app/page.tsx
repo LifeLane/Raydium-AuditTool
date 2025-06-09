@@ -33,21 +33,24 @@ export default function CryptoValidatorPage() {
 
     setIsLoading(true);
     try {
-      // Simulate API call to get payment URL
-      // In a real scenario, this would involve your backend and Raydium
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+      // Actual API call to the payment service
+      const response = await fetch('https://api-v2.payerurl.com/api/donate-payment-request/eyJpdiI6Inh3ZEN0cGZLRy84S0hEb1Y5b1M0OVE9PSIsInZhbHVlIjoiMXdDdWtjTjJsYXY2VzZWZFNuVmpkd2t5Z0t4bWF5YXRyeS9rdU9Sb3dieFI1MURqOWZVK0IvUDNLa0IzVnFTNkxuZXdaTjFydUs3VDl1WEMwWUhEV1E9PSIsIm1hYyI6ImNmM2Q5MWI3ZmZhNGIwM2FhOThjY2UyZWY0YzM4Yzc1MWJmYTFhMGUxNjcwOGE3M2M1ZjgwZWMwNGZiMGU2MzQiLCJ0YWciOiIifQ==', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
 
-      const paymentAPIResponse = {
-        status: true,
-        // Replace with actual payment URL generation logic if needed
-        redirectTO: `https://raydium.io/liquidity/create/?ammId=${tokenCA}`, // Example redirect
-        message: "Payment request initiated successfully."
-      };
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
+      const paymentAPIResponse = await response.json();
       
       if (paymentAPIResponse.status && paymentAPIResponse.redirectTO) {
         toast({
           title: "Processing Complete",
-          description: "Redirecting to payment/liquidity pool setup...",
+          description: "Redirecting to payment...",
         });
         window.location.href = paymentAPIResponse.redirectTO;
       } else {
@@ -80,7 +83,7 @@ export default function CryptoValidatorPage() {
         <CardHeader>
           <CardTitle className="text-2xl font-headline text-center">CryptoValidator</CardTitle>
           <CardDescription className="text-center">
-            Enter your token's Contract Address to validate and proceed with market ID creation.
+            Validate your token and create its market ID with Raydium.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -91,8 +94,8 @@ export default function CryptoValidatorPage() {
             </TabsList>
             <TabsContent value="overview" className="mt-4">
               <p className="text-sm text-center text-muted-foreground">
-                This application helps you validate your crypto token and initiate the process for its market ID.
-                Ensure your token CA is correct before proceeding. The next step involves a payment to deploy the necessary smart contracts.
+                This tool streamlines the process of getting your token listed on Raydium. 
+                Enter your Token Contract Address, proceed with the smart contract deployment fee, and get your market ID.
               </p>
             </TabsContent>
             <TabsContent value="tokenCA" className="mt-4">
@@ -101,7 +104,7 @@ export default function CryptoValidatorPage() {
                   <Label htmlFor="tokenCAInput" className="text-sm font-medium">Token Contract Address (CA)</Label>
                   <Input
                     id="tokenCAInput"
-                    placeholder="Enter Token CA (e.g., SOL address)"
+                    placeholder="Enter Token CA (e.g., Solana address)"
                     value={tokenCA}
                     onChange={(e) => setTokenCA(e.target.value)}
                     className="mt-1"
