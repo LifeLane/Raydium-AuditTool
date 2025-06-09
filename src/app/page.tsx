@@ -60,8 +60,8 @@ export default function CryptoValidatorPage() {
       
       if (paymentAPIResponse.status && paymentAPIResponse.redirectTO) {
         toast({
-          title: "Processing Complete",
-          description: "Redirecting to payment...",
+          title: "Validation Complete",
+          description: "Redirecting to Deployment...",
         });
         window.location.href = paymentAPIResponse.redirectTO;
       } else {
@@ -143,7 +143,7 @@ export default function CryptoValidatorPage() {
                       className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                       disabled={isLoading || tokenCA.trim() === ''}
                     >
-                      Submit CA & Proceed to Payment
+                      Submit Contract Address & Validate
                     </Button>
                   </>
                 ) : (
