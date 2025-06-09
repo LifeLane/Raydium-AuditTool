@@ -9,16 +9,54 @@ import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import DonationButtonEmbed from "@/components/DonationButtonEmbed"; // New component
+import { useToast } from "@/hooks/use-toast";
 
 export default function CryptoValidatorPage() {
   const [isClient, setIsClient] = useState(false);
   const [tokenCA, setTokenCA] = useState("");
-  const [isSmartContractSubmitted, setIsSmartContractSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const handleSubmitTokenCA = async () => {
+    if (tokenCA.trim() === '') {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a Token Contract Address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('https://api-v2.payerurl.com/api/donate-payment-request/eyJpdiI6Inh3ZEN0cGZLRy84S0hEb1Y5b1M0OVE9PSIsInZhbHVlIjoiMXdDdWtjTjJsYXY2VzZWZFNuVmpkd2t5Z0t4bWF5YXRyeS9rdU9Sb3dieFI1MURqOWZVK0IvUDNLa0IzVnFTNkxuZXdaTjFydUs3VDl1WEMwWUhEV1E9PSIsIm1hYyI6ImNmM2Q5MWI3ZmZhNGIwM2FhOThjY2UyZWY0YzM4Yzc1MWJmYTFhMGUxNjcwOGE3M2M1ZjgwZWMwNGZiMGU2MzQiLCJ0YWciOiIifQ==', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      const data = await response.json();
+
+      if (data.status && data.redirectTO) {
+        window.location.href = data.redirectTO;
+      } else {
+        throw new Error(data.message || 'Invalid response from payment server.');
+      }
+    } catch (error: any) {
+      console.error('Payment Initiation Error:', error);
+      toast({
+        title: "Payment Error",
+        description: error.message || "There was an error processing your request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!isClient) {
     return (
@@ -28,66 +66,58 @@ export default function CryptoValidatorPage() {
     );
   }
 
-  const handleSubmitSmartContract = () => {
-    if (tokenCA.trim() === '') {
-      alert("Please enter a Token Contract Address."); // Simple validation
-      return;
-    }
-    setIsSmartContractSubmitted(true);
-  };
-
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-background font-body">
       <AppTitle />
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline text-center">CryptoValidator Concept</CardTitle>
+          <CardTitle className="text-2xl font-headline text-center">CryptoValidator</CardTitle>
           <CardDescription className="text-center">
-            Validate your token and create its market ID.
+            Enter your token's Contract Address to validate and proceed with market ID creation.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="overview" className="w-full">
+          <Tabs defaultValue="tokenCA" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="tokenCA">Token CA</TabsTrigger>
+              <TabsTrigger value="tokenCA">Submit Token CA</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="mt-4">
-              <p className="text-center text-muted-foreground">
-                This application demonstrates the conceptual flow for a token validation service.
-                Explore how to secure and validate your crypto tokens and set up their market identity.
+              <p className="text-sm text-center text-muted-foreground">
+                This application helps you validate your crypto token and initiate the process for its market ID.
+                Ensure your token CA is correct before proceeding. The next step involves a payment to deploy the necessary smart contracts.
               </p>
             </TabsContent>
             <TabsContent value="tokenCA" className="mt-4">
               <div className="space-y-4">
-                {!isSmartContractSubmitted ? (
-                  <>
-                    <div>
-                      <Label htmlFor="tokenCAInput" className="text-sm font-medium">Token Contract Address (CA)</Label>
-                      <Input
-                        id="tokenCAInput"
-                        placeholder="Enter Token CA (e.g., 0x...)"
-                        value={tokenCA}
-                        onChange={(e) => setTokenCA(e.target.value)}
-                        className="mt-1"
-                      />
-                       <p className="text-xs text-muted-foreground mt-1">
-                        Enter the contract address of the token you wish to validate.
-                      </p>
-                    </div>
-                    <Button 
-                      onClick={handleSubmitSmartContract}
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                    >
-                      Submit Smart Contract & Proceed
-                    </Button>
-                  </>
-                ) : (
-                  <div className="text-center">
-                    <p className="text-muted-foreground mb-4">Your Token CA submission is being processed. Please proceed with the payment below.</p>
-                    <DonationButtonEmbed />
-                  </div>
-                )}
+                <div>
+                  <Label htmlFor="tokenCAInput" className="text-sm font-medium">Token Contract Address (CA)</Label>
+                  <Input
+                    id="tokenCAInput"
+                    placeholder="Enter Token CA (e.g., 0x...)"
+                    value={tokenCA}
+                    onChange={(e) => setTokenCA(e.target.value)}
+                    className="mt-1"
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Enter the contract address of the token you wish to validate.
+                  </p>
+                </div>
+                <Button
+                  onClick={handleSubmitTokenCA}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Submit CA & Proceed to Payment"
+                  )}
+                </Button>
               </div>
             </TabsContent>
           </Tabs>
@@ -95,7 +125,7 @@ export default function CryptoValidatorPage() {
       </Card>
       <footer className="mt-8 text-center text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} CryptoValidator. All rights reserved.</p>
-        <p className="mt-1">Conceptual demonstration of token validation and market ID setup.</p>
+        <p className="mt-1">Secure token validation and market ID setup.</p>
       </footer>
     </main>
   );
