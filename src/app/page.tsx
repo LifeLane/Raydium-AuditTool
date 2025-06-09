@@ -33,23 +33,30 @@ export default function CryptoValidatorPage() {
 
     setIsLoading(true);
     try {
-      const response = await fetch('https://api-v2.payerurl.com/api/donate-payment-request/eyJpdiI6Inh3ZEN0cGZLRy84S0hEb1Y5b1M0OVE9PSIsInZhbHVlIjoiMXdDdWtjTjJsYXY2VzZWZFNuVmpkd2t5Z0t4bWF5YXRyeS9rdU9Sb3dieFI1MURqOWZVK0IvUDNLa0IzVnFTNkxuZXdaTjFydUs3VDl1WEMwWUhEV1E9PSIsIm1hYyI6ImNmM2Q5MWI3ZmZhNGIwM2FhOThjY2UyZWY0YzM4Yzc1MWJmYTFhMGUxNjcwOGE3M2M1ZjgwZWMwNGZiMGU2MzQiLCJ0YWciOiIifQ==', {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      const data = await response.json();
+      // Simulate API call to get payment URL
+      // In a real scenario, this would involve your backend and Raydium
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
 
-      if (data.status && data.redirectTO) {
-        window.location.href = data.redirectTO;
+      const paymentAPIResponse = {
+        status: true,
+        // Replace with actual payment URL generation logic if needed
+        redirectTO: `https://raydium.io/liquidity/create/?ammId=${tokenCA}`, // Example redirect
+        message: "Payment request initiated successfully."
+      };
+      
+      if (paymentAPIResponse.status && paymentAPIResponse.redirectTO) {
+        toast({
+          title: "Processing Complete",
+          description: "Redirecting to payment/liquidity pool setup...",
+        });
+        window.location.href = paymentAPIResponse.redirectTO;
       } else {
-        throw new Error(data.message || 'Invalid response from payment server.');
+        throw new Error(paymentAPIResponse.message || 'Invalid response from payment server.');
       }
     } catch (error: any) {
       console.error('Payment Initiation Error:', error);
       toast({
-        title: "Payment Error",
+        title: "Error",
         description: error.message || "There was an error processing your request. Please try again.",
         variant: "destructive",
       });
@@ -94,14 +101,14 @@ export default function CryptoValidatorPage() {
                   <Label htmlFor="tokenCAInput" className="text-sm font-medium">Token Contract Address (CA)</Label>
                   <Input
                     id="tokenCAInput"
-                    placeholder="Enter Token CA (e.g., 0x...)"
+                    placeholder="Enter Token CA (e.g., SOL address)"
                     value={tokenCA}
                     onChange={(e) => setTokenCA(e.target.value)}
                     className="mt-1"
                     disabled={isLoading}
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Enter the contract address of the token you wish to validate.
+                    Enter the Solana contract address of the token you wish to validate.
                   </p>
                 </div>
                 <Button
@@ -126,6 +133,7 @@ export default function CryptoValidatorPage() {
       <footer className="mt-8 text-center text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} CryptoValidator. All rights reserved.</p>
         <p className="mt-1">Secure token validation and market ID setup.</p>
+        <p className="mt-1 font-semibold">Powered by Raydium</p>
       </footer>
     </main>
   );
