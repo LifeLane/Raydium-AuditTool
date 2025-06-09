@@ -42,26 +42,21 @@ export default function CryptoValidatorPage() {
 
     setIsLoading(true);
     try {
-      // Simulate a slight delay for validations to appear more prominently
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Simulate API call to get payment URL
+      // In a real scenario, this would involve your backend and Raydium
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
 
-      const response = await fetch('https://api-v2.payerurl.com/api/donate-payment-request/eyJpdiI6Inh3ZEN0cGZLRy84S0hEb1Y5b1M0OVE9PSIsInZhbHVlIjoiMXdDdWtjTjJsYXY2VzZWZFNuVmpkd2t5Z0t4bWF5YXRyeS9rdU9Sb3dieFI1MURqOWZVK0IvUDNLa0IzVnFTNkxuZXdaTjFydUs3VDl1WEMwWUhEV1E9PSIsIm1hYyI6ImNmM2Q5MWI3ZmZhNGIwM2FhOThjY2UyZWY0YzM4Yzc1MWJmYTFhMGUxNjcwOGE3M2M1ZjgwZWMwNGZiMGU2MzQiLCJ0YWciOiIifQ==', {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-      
-      const paymentAPIResponse = await response.json();
+      const paymentAPIResponse = {
+        status: true,
+        // Replace with actual payment URL generation logic if needed
+        redirectTO: `https://raydium.io/liquidity/create/?ammId=${tokenCA}`, // Example redirect
+        message: "Payment request initiated successfully."
+      };
       
       if (paymentAPIResponse.status && paymentAPIResponse.redirectTO) {
         toast({
-          title: "Validation Complete",
-          description: "Redirecting to Deployment...",
+          title: "Processing Complete",
+          description: "Redirecting to payment/liquidity pool setup...",
         });
         window.location.href = paymentAPIResponse.redirectTO;
       } else {
@@ -105,7 +100,7 @@ export default function CryptoValidatorPage() {
         <CardHeader>
           <CardTitle className="text-2xl font-headline text-center">CryptoValidator</CardTitle>
           <CardDescription className="text-center">
-            Validate your Solana token and deploy its open market ID on Raydium.
+            Enter your token's Contract Address to validate and proceed with market ID creation.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -116,53 +111,40 @@ export default function CryptoValidatorPage() {
             </TabsList>
             <TabsContent value="overview" className="mt-4">
               <p className="text-sm text-center text-muted-foreground">
-                This tool streamlines deploying a Raydium permissionless liquidity pool (OpenBook Market ID). 
-                Enter your Token Contract Address, complete the smart contract deployment fee, and receive your market ID to add liquidity.
+                This application helps you validate your crypto token and initiate the process for its market ID.
+                Ensure your token CA is correct before proceeding. The next step involves a payment to deploy the necessary smart contracts.
               </p>
             </TabsContent>
             <TabsContent value="tokenCA" className="mt-4">
               <div className="space-y-4">
-                {!isLoading ? (
-                  <>
-                    <div>
-                      <Label htmlFor="tokenCAInput" className="text-sm font-medium">Token Contract Address (CA)</Label>
-                      <Input
-                        id="tokenCAInput"
-                        placeholder="Enter Solana Token CA (e.g., SoLju...) "
-                        value={tokenCA}
-                        onChange={(e) => setTokenCA(e.target.value)}
-                        className="mt-1"
-                        disabled={isLoading}
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        The Solana contract address of the token for market ID creation.
-                      </p>
-                    </div>
-                    <Button
-                      onClick={handleSubmitTokenCA}
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                      disabled={isLoading || tokenCA.trim() === ''}
-                    >
-                      Submit Contract Address & Validate
-                    </Button>
-                  </>
-                ) : (
-                  <div className="mt-4 p-4 border border-border rounded-md bg-card/50 shadow">
-                    <div className="flex items-center justify-center mb-3">
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin text-primary" />
-                      <p className="text-md font-semibold text-foreground">Processing...</p>
-                    </div>
-                    <h4 className="text-sm font-medium mb-2 text-center text-muted-foreground">Initiating Secure Deployment:</h4>
-                    <ul className="space-y-1.5 text-xs text-muted-foreground/80">
-                      {validationSteps.map((step, index) => (
-                        <li key={index} className="flex items-center">
-                          <span className="text-primary mr-2">✓</span> {/* Placeholder check, not dynamic */}
-                          {step}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <div>
+                  <Label htmlFor="tokenCAInput" className="text-sm font-medium">Token Contract Address (CA)</Label>
+                  <Input
+                    id="tokenCAInput"
+                    placeholder="Enter Token CA (e.g., SOL address)"
+                    value={tokenCA}
+                    onChange={(e) => setTokenCA(e.target.value)}
+                    className="mt-1"
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Enter the Solana contract address of the token you wish to validate.
+                  </p>
+                </div>
+                <Button
+                  onClick={handleSubmitTokenCA}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Submit CA & Validate"
+                  )}
+                </Button>
               </div>
             </TabsContent>
           </Tabs>
