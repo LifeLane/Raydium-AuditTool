@@ -133,7 +133,9 @@ export default function CryptoValidatorPage() {
       <footer className="mt-8 text-center text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} CryptoValidator. All rights reserved.</p>
         <p className="mt-1">Secure token validation and market ID setup.</p>
-        <p className="mt-1 font-semibold">Powered by Raydium</p>
+        <p className="mt-1 font-semibold">
+          Powered by <a href="https://raydium.io/" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">Raydium</a>
+        </p>
       </footer>
     </main>
   );
