@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
     --background: 226 100% 92%; /* #D4DEFE light grayish-blue */
@@ -55,26 +51,25 @@ body {
   }
 
   .dark {
-    /* Keeping dark mode defaults, can be customized if needed */
     --background: 222 47% 11%;
     --foreground: 0 0% 98%;
-    --card: 222 47% 11%;
+    --card: 222 47% 13%; /* Slightly lighter than background for depth */
     --card-foreground: 0 0% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 0 0% 98%;
-    --primary: 225 100% 58%;
+    --primary: 210 100% 56%; /* Brighter, techy blue */
     --primary-foreground: 0 0% 100%;
     --secondary: 222 47% 18%;
     --secondary-foreground: 0 0% 98%;
     --muted: 222 47% 18%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 273 100% 67%;
+    --accent: 160 100% 40%; /* Vibrant teal/green */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 222 47% 25%;
     --input: 222 47% 18%;
-    --ring: 225 100% 58%;
+    --ring: 210 100% 56%; /* Match new primary color */
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
