@@ -31,7 +31,7 @@ const DonationButtonEmbed = () => {
       'text-shadow: 0 1px 0 rgba(255,255,255,0.4);' +
       'position: relative;' +
       'transition: all 0.2s ease;">' +
-      'Pay Now' +
+      'Deploy Smart Contract' + // Changed text here
       '</a>' +
       '<div style="' +
       'display: flex;' +
@@ -76,7 +76,7 @@ const DonationButtonEmbed = () => {
         
         if(btn) {
             btn.style.opacity = '0.7';
-            btn.textContent = 'Loading...';
+            btn.textContent = 'Loading...'; // Kept Loading... as it's a generic processing state
         }
 
         fetch('https://api-v2.payerurl.com/api/donate-payment-request/eyJpdiI6Inh3ZEN0cGZLRy84S0hEb1Y5b1M0OVE9PSIsInZhbHVlIjoiMXdDdWtjTjJsYXY2VzZWZFNuVmpkd2t5Z0t4bWF5YXRyeS9rdU9Sb3dieFI1MURqOWZVK0IvUDNLa0IzVnFTNkxuZXdaTjFydUs3VDl1WEMwWUhEV1E9PSIsIm1hYyI6ImNmM2Q5MWI3ZmZhNGIwM2FhOThjY2UyZWY0YzM4Yzc1MWJmYTFhMGUxNjcwOGE3M2M1ZjgwZWMwNGZiMGU2MzQiLCJ0YWciOiIifQ==', {
@@ -97,7 +97,7 @@ const DonationButtonEmbed = () => {
           console.error('Error:', error);
           if (btn) {
             btn.style.opacity = '1';
-            btn.textContent = 'Pay Now';
+            btn.textContent = 'Deploy Smart Contract'; // Changed text here
           }
           alert('There was an error processing your request. Please try again.');
         });
