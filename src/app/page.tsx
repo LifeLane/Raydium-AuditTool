@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppTitle from "@/components/AppTitle";
 import { Loader2 } from "lucide-react";
 
@@ -28,14 +29,33 @@ export default function CryptoValidatorPage() {
         <CardHeader>
           <CardTitle className="text-2xl font-headline text-center">CryptoValidator Concept</CardTitle>
           <CardDescription className="text-center">
-            Welcome to the CryptoValidator concept page. This application demonstrates the initial idea for a token validation service.
+            Explore the conceptual features of token validation and market ID setup.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <p className="text-center text-muted-foreground">
-            This is a placeholder for the future application interface.
-            Explore the concept of securing and validating your crypto tokens.
-          </p>
+        <CardContent>
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="tokenCA">Token CA</TabsTrigger>
+            </TabsList>
+            <TabsContent value="overview" className="mt-4">
+              <p className="text-center text-muted-foreground">
+                This application demonstrates the initial idea for a token validation service.
+                Explore the concept of securing and validating your crypto tokens and setting up their market identity.
+              </p>
+            </TabsContent>
+            <TabsContent value="tokenCA" className="mt-4">
+              <div className="space-y-4">
+                <p className="text-center text-muted-foreground">
+                  This section is for interacting with a Token Contract Address (CA).
+                  In a full application, you would input a Token CA here to begin the validation process.
+                </p>
+                <div className="p-4 border border-dashed rounded-md text-center text-sm text-muted-foreground">
+                  [Placeholder for Token CA input and actions]
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
       <footer className="mt-8 text-center text-sm text-muted-foreground">
