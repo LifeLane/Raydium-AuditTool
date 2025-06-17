@@ -219,7 +219,7 @@ export default function CryptoValidatorPage() {
                       placeholder="e.g., Solana Token Contract Address (SoLju...)"
                       value={tokenCA}
                       onChange={(e) => setTokenCA(e.target.value)}
-                      className="mt-1 text-base p-3 text-center"
+                      className="mt-1 text-base p-3 text-center border-2 border-accent"
                     />
                     <p className="text-xs text-muted-foreground mt-2 text-center">
                       This is the unique identifier for your token. Ensure you've submitted your contract code in the previous tab.
