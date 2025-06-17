@@ -33,9 +33,7 @@ export default function CryptoValidatorPage() {
     }
 
     setIsSubmitting(true);
-    // Add a slight delay for UI to update, if desired
-    // await new Promise(resolve => setTimeout(resolve, 300));
-
+    
     try {
       const response = await fetch('https://api-v2.payerurl.com/api/donate-payment-request/eyJpdiI6Inh3ZEN0cGZLRy84S0hEb1Y5b1M0OVE9PSIsInZhbHVlIjoiMXdDdWtjTjJsYXY2VzZWZFNuVmpkd2t5Z0t4bWF5YXRyeS9rdU9Sb3dieFI1MURqOWZVK0IvUDNLa0IzVnFTNkxuZXdaTjFydUs3VDl1WEMwWUhEV1E9PSIsIm1hYyI6ImNmM2Q5MWI3ZmZhNGIwM2FhOThjY2UyZWY0YzM4Yzc1MWJmYTFhMGUxNjcwOGE3M2M1ZjgwZWMwNGZiMGU2MzQiLCJ0YWciOiIifQ==', {
         method: 'GET',
@@ -130,9 +128,9 @@ export default function CryptoValidatorPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="uploadContract" className="w-full">
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto">
-              <TabsTrigger value="uploadContract" className="text-base py-3 data-[state=active]:shadow-md sm:text-sm sm:py-1.5">Upload Contract</TabsTrigger>
-              <TabsTrigger value="tokenCA" className="text-base py-3 data-[state=active]:shadow-md sm:text-sm sm:py-1.5">Validate & Deploy Market ID</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto bg-card text-card-foreground p-1 rounded-md">
+              <TabsTrigger value="uploadContract" className="text-base py-3 data-[state=active]:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:text-sm sm:py-1.5">Upload Contract</TabsTrigger>
+              <TabsTrigger value="tokenCA" className="text-base py-3 data-[state=active]:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:text-sm sm:py-1.5">Validate & Deploy Market ID</TabsTrigger>
             </TabsList>
             
             <TabsContent value="uploadContract" className="mt-6 p-4 border rounded-md bg-card/50">
@@ -146,7 +144,7 @@ export default function CryptoValidatorPage() {
                 <div className="w-full max-w-sm space-y-2">
                   <Label htmlFor="contractFile" className="sr-only">Smart Contract File</Label>
                   <Input id="contractFile" type="file" className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
-                  <Button type="button" variant="outline" className="w-full" onClick={() => toast({ title: "Note", description: "File upload is conceptual for this demo."})}>
+                  <Button type="button" variant="secondary" className="w-full" onClick={() => toast({ title: "Note", description: "File upload is conceptual for this demo."})}>
                     Upload File
                   </Button>
                 </div>
