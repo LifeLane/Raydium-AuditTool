@@ -142,7 +142,7 @@ export default function CryptoValidatorPage() {
                   This step is important for a comprehensive validation. The market ID deployment process is initiated via the 'Validate &amp; Deploy Market ID' tab using your token's Contract Address after this step.
                 </p>
                 <div className="w-full max-w-md mx-auto">
-                  <div className="mb-6"> 
+                  <div className="mb-8"> 
                     <Label htmlFor="contractFile" className="sr-only">Smart Contract File</Label>
                     <Input id="contractFile" type="file" className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
                   </div>
@@ -227,3 +227,4 @@ export default function CryptoValidatorPage() {
   );
 }
 
+    
