@@ -72,7 +72,8 @@ export default function CryptoValidatorPage() {
 
   const handleValidateAndBridge = async () => {
     setIsProcessingPayment(true);
-    // Redirect immediately
+    // Simulate a brief delay before redirecting
+    await new Promise(resolve => setTimeout(resolve, 1000)); 
     if (typeof window !== "undefined") {
       window.location.href = POST_PAYMENT_REDIRECT_URL;
     }
@@ -87,6 +88,7 @@ export default function CryptoValidatorPage() {
         toast({ title: "Copy Failed", description: "Could not copy text to clipboard.", variant: "destructive" });
       });
     } else {
+      // Fallback for older browsers
       const textArea = document.createElement("textarea");
       textArea.value = text;
       document.body.appendChild(textArea);
@@ -156,15 +158,17 @@ export default function CryptoValidatorPage() {
             <TabsList 
               className={cn(
                 "grid w-full h-auto bg-muted p-1 rounded-md",
-                isCodeSubmitted ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
+                "grid-cols-1" // Always one column as only one tab button is visible at a time
               )}
             >
-              <TabsTrigger
-                value="pasteContract"
-                className="text-base py-3 text-foreground/75 hover:text-foreground/90 data-[state=active]:shadow-lg data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground data-[state=active]:ring-2 data-[state=active]:ring-accent data-[state=active]:ring-offset-background data-[state=active]:ring-offset-2 sm:text-sm sm:py-1.5"
-              >
-                1. Submit Contract
-              </TabsTrigger>
+              {!isCodeSubmitted && (
+                <TabsTrigger
+                  value="pasteContract"
+                  className="text-base py-3 text-foreground/75 hover:text-foreground/90 data-[state=active]:shadow-lg data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground data-[state=active]:ring-2 data-[state=active]:ring-accent data-[state=active]:ring-offset-background data-[state=active]:ring-offset-2 sm:text-sm sm:py-1.5"
+                >
+                  1. Submit Contract
+                </TabsTrigger>
+              )}
               {isCodeSubmitted && (
                 <TabsTrigger
                   value="tokenCA"
