@@ -6,17 +6,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppTitle from "@/components/AppTitle";
 import InfoBar from "@/components/InfoBar";
-import { Loader2, Box, GitCompareArrows, Network } from "lucide-react";
+import { Loader2, Box, GitCompareArrows, Network, CheckCircle } from "lucide-react"; // Added CheckCircle
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea"; // Added Textarea import
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
 export default function CryptoValidatorPage() {
   const [isClient, setIsClient] = useState(false);
   const [tokenCA, setTokenCA] = useState("");
-  const [isSubmittingTokenCa, setIsSubmittingTokenCa] = useState(false); // Renamed for clarity
+  const [isSubmittingTokenCa, setIsSubmittingTokenCa] = useState(false);
   const { toast } = useToast();
 
   const [contractCode, setContractCode] = useState("");
@@ -39,8 +39,13 @@ export default function CryptoValidatorPage() {
     setIsCodeSubmitted(true);
     setActiveTab("tokenCA"); 
     toast({
-      title: "Code Submitted",
-      description: "Your smart contract code has been conceptually submitted. Please proceed to validate your Token CA.",
+      title: (
+        <div className="flex items-center">
+          <CheckCircle className="h-5 w-5 mr-2 text-primary" /> 
+          <span>Code Submitted</span>
+        </div>
+      ),
+      description: "Smart contract code submitted successfully. You can now proceed to validate your Token CA.",
     });
   };
 
@@ -149,7 +154,7 @@ export default function CryptoValidatorPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" defaultValue="pasteContract">
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto bg-card text-card-foreground p-1 rounded-md">
               <TabsTrigger 
                 value="pasteContract" 
@@ -171,8 +176,8 @@ export default function CryptoValidatorPage() {
               <div className="flex flex-col items-center text-center">
                 <h3 className="text-xl font-semibold mb-2">Paste Your Smart Contract</h3>
                 <p className="text-sm text-muted-foreground mb-4 max-w-md">
-                  Paste your smart contract code (e.g., Solidity, Rust) into the text area below. 
-                  This code will be conceptually processed for validation. After submitting the code, you'll be able to proceed with validating your Token Contract Address.
+                  To begin, paste your smart contract code (e.g., Solidity, Rust) into the text area below. 
+                  This code will be conceptually processed. After submitting, you'll proceed to validate your Token Contract Address.
                 </p>
                 <div className="w-full max-w-md mx-auto mb-6">
                   <Label htmlFor="contractCodeArea" className="sr-only">Smart Contract Code</Label>
