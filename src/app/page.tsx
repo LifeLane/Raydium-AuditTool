@@ -175,7 +175,7 @@ export default function CryptoValidatorPage() {
               )}
             </TabsList>
             
-            <TabsContent value="pasteContract" className="mt-6 p-4 border rounded-md bg-card/50">
+            <TabsContent value="pasteContract" className="mt-6 p-4 border-2 border-accent rounded-md bg-card/50">
               <div className="flex flex-col items-center text-center">
                 <h3 className="text-xl font-semibold mb-2">Submit Your Smart Contract Code</h3>
                 <p className="text-sm text-muted-foreground mb-4 max-w-md">
