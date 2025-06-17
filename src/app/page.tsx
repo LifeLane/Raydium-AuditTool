@@ -129,9 +129,9 @@ export default function CryptoValidatorPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="tokenCA" className="w-full">
+          <Tabs defaultValue="uploadContract" className="w-full">
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2">
-              <TabsTrigger value="uploadContract">Upload Contract (Optional)</TabsTrigger>
+              <TabsTrigger value="uploadContract">Upload Contract</TabsTrigger>
               <TabsTrigger value="tokenCA">Validate & Deploy Market ID</TabsTrigger>
             </TabsList>
             
@@ -141,7 +141,7 @@ export default function CryptoValidatorPage() {
                 <h3 className="text-xl font-semibold mb-2">Upload Your Smart Contract</h3>
                 <p className="text-sm text-muted-foreground mb-4 max-w-md">
                   For archival purposes or future advanced analysis, you can upload your compiled smart contract file here. 
-                  This step is optional. The primary validation and market ID deployment process is initiated via the 'Validate & Deploy Market ID' tab using your token's Contract Address.
+                  This step is important for a comprehensive validation. The market ID deployment process is initiated via the 'Validate & Deploy Market ID' tab using your token's Contract Address after this step.
                 </p>
                 <div className="w-full max-w-sm space-y-2">
                   <Label htmlFor="contractFile" className="sr-only">Smart Contract File</Label>
@@ -182,7 +182,7 @@ export default function CryptoValidatorPage() {
                       disabled={isSubmitting}
                     />
                     <p className="text-xs text-muted-foreground mt-2 text-center">
-                      This is the unique identifier for your token on the Solana blockchain.
+                      This is the unique identifier for your token on the Solana blockchain. Ensure you have uploaded your contract in the previous tab if applicable.
                     </p>
                   </Card>
 
