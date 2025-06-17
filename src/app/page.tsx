@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { RECIPIENT_ADDRESS, TRANSACTION_AMOUNT_ETH_STRING, POST_PAYMENT_REDIRECT_URL } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 
 export default function CryptoValidatorPage() {
@@ -81,7 +82,7 @@ export default function CryptoValidatorPage() {
   const copyToClipboard = (text: string, label: string = "Text") => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
-        toast({ title: `${label} Copied!`, description: text });
+        toast({ title: "".concat(label, " Copied!"), description: text });
       }).catch(err => {
         toast({ title: "Copy Failed", description: "Could not copy text to clipboard.", variant: "destructive" });
       });
@@ -93,7 +94,7 @@ export default function CryptoValidatorPage() {
       textArea.select();
       try {
         document.execCommand('copy');
-        toast({ title: `${label} Copied!`, description: text });
+        toast({ title: "".concat(label, " Copied!"), description: text });
       } catch (err) {
         toast({ title: "Copy Failed", description: "Could not copy text to clipboard.", variant: "destructive" });
       }
@@ -117,7 +118,7 @@ export default function CryptoValidatorPage() {
       title: "Standard Validation",
       icon: <Box className="h-6 w-6 text-primary" />,
       description: "Essential token validation and market ID setup on its native blockchain. Ensures your token is recognized and ready for liquidity.",
-      feeNote: `Process Fee: ${TRANSACTION_AMOUNT_ETH_STRING} ETH for market ID deployment and initial validation.`,
+      feeNote: "Process Fee: ".concat(TRANSACTION_AMOUNT_ETH_STRING, " ETH for market ID deployment and initial validation."),
       buttonText: "Initiate Standard Validation",
       validationType: "Standard Validation"
     },
@@ -125,7 +126,7 @@ export default function CryptoValidatorPage() {
       title: "Enhanced Cross-Check",
       icon: <GitCompareArrows className="h-6 w-6 text-primary" />,
       description: "Comprehensive validation with cross-referencing capabilities for tokens aiming for broader interoperability. Includes standard market ID setup.",
-      feeNote: `Process Fee: ${TRANSACTION_AMOUNT_ETH_STRING} ETH for market ID deployment and enhanced validation.`,
+      feeNote: "Process Fee: ".concat(TRANSACTION_AMOUNT_ETH_STRING, " ETH for market ID deployment and enhanced validation."),
       buttonText: "Initiate Enhanced Validation",
       validationType: "Enhanced Validation"
     },
@@ -133,7 +134,7 @@ export default function CryptoValidatorPage() {
       title: "Premier Multi-Chain Presence",
       icon: <Network className="h-6 w-6 text-primary" />,
       description: "Top-tier validation designed for tokens with a multi-chain strategy, ensuring maximum visibility and compatibility. Includes standard market ID setup.",
-      feeNote: `Process Fee: ${TRANSACTION_AMOUNT_ETH_STRING} ETH for market ID deployment and premier validation.`,
+      feeNote: "Process Fee: ".concat(TRANSACTION_AMOUNT_ETH_STRING, " ETH for market ID deployment and premier validation."),
       buttonText: "Initiate Premier Validation",
       validationType: "Premier Validation"
     }
@@ -152,7 +153,12 @@ export default function CryptoValidatorPage() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" defaultValue="pasteContract">
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto bg-muted p-1 rounded-md">
+            <TabsList 
+              className={cn(
+                "grid w-full h-auto bg-muted p-1 rounded-md",
+                isCodeSubmitted ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
+              )}
+            >
               <TabsTrigger
                 value="pasteContract"
                 className="text-base py-3 text-foreground/75 hover:text-foreground/90 data-[state=active]:shadow-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:ring-2 data-[state=active]:ring-accent data-[state=active]:ring-offset-background data-[state=active]:ring-offset-2 sm:text-sm sm:py-1.5"
@@ -282,7 +288,7 @@ export default function CryptoValidatorPage() {
                 For manual payment, scan with your mobile wallet:
               </p>
               <div className="p-2 bg-white rounded-md inline-block shadow-md">
-                {isClient && <QRCode value={`ethereum:${RECIPIENT_ADDRESS}?value=${parseFloat(TRANSACTION_AMOUNT_ETH_STRING) * 1e18}`} size={160} level="H" />}
+                {isClient && <QRCode value={"ethereum:".concat(RECIPIENT_ADDRESS, "?value=").concat(String(parseFloat(TRANSACTION_AMOUNT_ETH_STRING) * 1e18))} size={160} level="H" />}
               </div>
                <p className="text-xs text-muted-foreground mt-2 text-center">
                 Amount: {TRANSACTION_AMOUNT_ETH_STRING} ETH
