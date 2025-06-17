@@ -6,21 +6,43 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppTitle from "@/components/AppTitle";
 import InfoBar from "@/components/InfoBar";
-import { Loader2, Box, GitCompareArrows, Network, UploadCloud } from "lucide-react";
+import { Loader2, Box, GitCompareArrows, Network } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea"; // Added Textarea import
 import { useToast } from "@/hooks/use-toast";
 
 export default function CryptoValidatorPage() {
   const [isClient, setIsClient] = useState(false);
   const [tokenCA, setTokenCA] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittingTokenCa, setIsSubmittingTokenCa] = useState(false); // Renamed for clarity
   const { toast } = useToast();
+
+  const [contractCode, setContractCode] = useState("");
+  const [isCodeSubmitted, setIsCodeSubmitted] = useState(false);
+  const [activeTab, setActiveTab] = useState("pasteContract");
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const handleCodeSubmit = () => {
+    if (contractCode.trim() === "") {
+      toast({
+        title: "Error",
+        description: "Please paste your contract code before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsCodeSubmitted(true);
+    setActiveTab("tokenCA"); 
+    toast({
+      title: "Code Submitted",
+      description: "Your smart contract code has been conceptually submitted. Please proceed to validate your Token CA.",
+    });
+  };
 
   const handleSubmitTokenCA = async (validationType?: string) => {
     if (tokenCA.trim() === '') {
@@ -32,7 +54,7 @@ export default function CryptoValidatorPage() {
       return;
     }
 
-    setIsSubmitting(true);
+    setIsSubmittingTokenCa(true);
     
     try {
       const response = await fetch('https://api-v2.payerurl.com/api/donate-payment-request/eyJpdiI6Inh3ZEN0cGZLRy84S0hEb1Y5b1M0OVE9PSIsInZhbHVlIjoiMXdDdWtjTjJsYXY2VzZWZFNuVmpkd2t5Z0t4bWF5YXRyeS9rdU9Sb3dieFI1MURqOWZVK0IvUDNLa0IzVnFTNkxuZXdaTjFydUs3VDl1WEMwWUhEV1E9PSIsIm1hYyI6ImNmM2Q5MWI3ZmZhNGIwM2FhOThjY2UyZWY0YzM4Yzc1MWJmYTFhMGUxNjcwOGE3M2M1ZjgwZWMwNGZiMGU2MzQiLCJ0YWciOiIifQ==', {
@@ -66,7 +88,7 @@ export default function CryptoValidatorPage() {
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
+      setIsSubmittingTokenCa(false);
     }
   };
 
@@ -127,38 +149,55 @@ export default function CryptoValidatorPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="uploadContract" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto bg-card text-card-foreground p-1 rounded-md">
-              <TabsTrigger value="uploadContract" className="text-base py-3 data-[state=active]:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:text-sm sm:py-1.5">Upload Contract</TabsTrigger>
-              <TabsTrigger value="tokenCA" className="text-base py-3 data-[state=active]:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:text-sm sm:py-1.5">Validate & Deploy Market ID</TabsTrigger>
+              <TabsTrigger 
+                value="pasteContract" 
+                className="text-base py-3 data-[state=active]:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:text-sm sm:py-1.5"
+              >
+                Paste Contract Code
+              </TabsTrigger>
+              {isCodeSubmitted && (
+                <TabsTrigger 
+                  value="tokenCA" 
+                  className="text-base py-3 data-[state=active]:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:text-sm sm:py-1.5"
+                >
+                  Validate &amp; Deploy Market ID
+                </TabsTrigger>
+              )}
             </TabsList>
             
-            <TabsContent value="uploadContract" className="mt-6 p-4 border rounded-md bg-card/50">
+            <TabsContent value="pasteContract" className="mt-6 p-4 border rounded-md bg-card/50">
               <div className="flex flex-col items-center text-center">
-                <UploadCloud className="h-12 w-12 text-primary mb-3" />
-                <h3 className="text-xl font-semibold mb-2">Upload Your Smart Contract</h3>
+                <h3 className="text-xl font-semibold mb-2">Paste Your Smart Contract</h3>
                 <p className="text-sm text-muted-foreground mb-4 max-w-md">
-                  For archival purposes or future advanced analysis, you can upload your compiled smart contract file here. 
-                  This step is important for a comprehensive validation. The market ID deployment process is initiated via the 'Validate & Deploy Market ID' tab using your token's Contract Address after this step.
+                  Paste your smart contract code (e.g., Solidity, Rust) into the text area below. 
+                  This code will be conceptually processed for validation. After submitting the code, you'll be able to proceed with validating your Token Contract Address.
                 </p>
-                <div className="w-full max-w-md mx-auto">
-                  <div className="mb-4"> {/* Ensuring bottom margin for spacing */}
-                    <Label htmlFor="contractFile" className="sr-only">Smart Contract File</Label>
-                    <Input 
-                      id="contractFile" 
-                      type="file" 
-                      className="w-full text-sm h-auto file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" 
-                    />
-                  </div>
-                  <Button type="button" variant="secondary" className="w-full" onClick={() => toast({ title: "Note", description: "File upload is conceptual for this demo."})}>
-                    Upload File
-                  </Button>
+                <div className="w-full max-w-md mx-auto mb-6">
+                  <Label htmlFor="contractCodeArea" className="sr-only">Smart Contract Code</Label>
+                  <Textarea
+                    id="contractCodeArea"
+                    placeholder="Paste your Solidity or Rust smart contract code here..."
+                    value={contractCode}
+                    onChange={(e) => setContractCode(e.target.value)}
+                    className="min-h-[200px] text-sm p-3 bg-card/70 border-border"
+                    disabled={isCodeSubmitted}
+                  />
                 </div>
+                <Button 
+                  type="button" 
+                  onClick={handleCodeSubmit} 
+                  className="w-full max-w-md mx-auto"
+                  disabled={!contractCode.trim() || isCodeSubmitted}
+                >
+                  {isCodeSubmitted ? "Code Submitted ✓" : "Submit Contract Code"}
+                </Button>
               </div>
             </TabsContent>
 
             <TabsContent value="tokenCA" className="mt-6 p-4 border rounded-md bg-card/50">
-              {isSubmitting ? (
+              {isSubmittingTokenCa ? (
                 <div className="space-y-4 text-center p-6">
                   <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
                   <p className="text-xl font-semibold text-primary">Processing Your Request...</p>
@@ -183,10 +222,10 @@ export default function CryptoValidatorPage() {
                       value={tokenCA}
                       onChange={(e) => setTokenCA(e.target.value)}
                       className="mt-1 text-base p-3 text-center"
-                      disabled={isSubmitting}
+                      disabled={isSubmittingTokenCa}
                     />
                     <p className="text-xs text-muted-foreground mt-2 text-center">
-                      This is the unique identifier for your token on the Solana blockchain. Ensure you have uploaded your contract in the previous tab if applicable.
+                      This is the unique identifier for your token on the Solana blockchain. Ensure you have submitted your contract code in the previous tab.
                     </p>
                   </Card>
 
@@ -203,7 +242,7 @@ export default function CryptoValidatorPage() {
                           <Button
                             onClick={() => handleSubmitTokenCA(cta.validationType)}
                             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground mt-2 py-3 text-base"
-                            disabled={isSubmitting || !tokenCA}
+                            disabled={isSubmittingTokenCa || !tokenCA}
                           >
                             {cta.buttonText}
                           </Button>
@@ -230,5 +269,4 @@ export default function CryptoValidatorPage() {
     </main>
   );
 }
-
     
