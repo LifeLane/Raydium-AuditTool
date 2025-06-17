@@ -130,7 +130,7 @@ export default function CryptoValidatorPage() {
           <Tabs defaultValue="uploadContract" className="w-full">
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto bg-card text-card-foreground p-1 rounded-md">
               <TabsTrigger value="uploadContract" className="text-base py-3 data-[state=active]:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:text-sm sm:py-1.5">Upload Contract</TabsTrigger>
-              <TabsTrigger value="tokenCA" className="text-base py-3 data-[state=active]:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:text-sm sm:py-1.5">Validate & Deploy Market ID</TabsTrigger>
+              <TabsTrigger value="tokenCA" className="text-base py-3 data-[state=active]:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:text-sm sm:py-1.5">Validate &amp; Deploy Market ID</TabsTrigger>
             </TabsList>
             
             <TabsContent value="uploadContract" className="mt-6 p-4 border rounded-md bg-card/50">
@@ -139,11 +139,13 @@ export default function CryptoValidatorPage() {
                 <h3 className="text-xl font-semibold mb-2">Upload Your Smart Contract</h3>
                 <p className="text-sm text-muted-foreground mb-4 max-w-md">
                   For archival purposes or future advanced analysis, you can upload your compiled smart contract file here. 
-                  This step is important for a comprehensive validation. The market ID deployment process is initiated via the 'Validate & Deploy Market ID' tab using your token's Contract Address after this step.
+                  This step is important for a comprehensive validation. The market ID deployment process is initiated via the 'Validate &amp; Deploy Market ID' tab using your token's Contract Address after this step.
                 </p>
-                <div className="w-full max-w-sm space-y-6">
-                  <Label htmlFor="contractFile" className="sr-only">Smart Contract File</Label>
-                  <Input id="contractFile" type="file" className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
+                <div className="w-full max-w-md mx-auto">
+                  <div className="mb-6"> 
+                    <Label htmlFor="contractFile" className="sr-only">Smart Contract File</Label>
+                    <Input id="contractFile" type="file" className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
+                  </div>
                   <Button type="button" variant="secondary" className="w-full" onClick={() => toast({ title: "Note", description: "File upload is conceptual for this demo."})}>
                     Upload File
                   </Button>
@@ -151,7 +153,7 @@ export default function CryptoValidatorPage() {
               </div>
             </TabsContent>
 
-            <TabsContent value="tokenCA" className="mt-6">
+            <TabsContent value="tokenCA" className="mt-6 p-4 border rounded-md bg-card/50">
               {isSubmitting ? (
                 <div className="space-y-4 text-center p-6">
                   <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
@@ -224,3 +226,4 @@ export default function CryptoValidatorPage() {
     </main>
   );
 }
+
