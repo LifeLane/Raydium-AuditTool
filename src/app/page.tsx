@@ -175,7 +175,7 @@ export default function CryptoValidatorPage() {
               )}
             </TabsList>
             
-            <TabsContent value="pasteContract" className="mt-6 p-4 border-2 border-accent rounded-md bg-card/50">
+            <TabsContent value="pasteContract" className="mt-6 p-4 border rounded-md bg-card/50">
               <div className="flex flex-col items-center text-center">
                 <h3 className="text-xl font-semibold mb-2">Submit Your Smart Contract Code</h3>
                 <p className="text-sm text-muted-foreground mb-4 max-w-md">
@@ -189,7 +189,7 @@ export default function CryptoValidatorPage() {
                     placeholder="Paste your smart contract code here..."
                     value={contractCode}
                     onChange={(e) => setContractCode(e.target.value)}
-                    className="min-h-[200px] text-sm p-3 bg-card/70 border-border h-auto"
+                    className="min-h-[200px] text-sm p-3 bg-card/70 border-2 border-accent h-auto"
                     disabled={isCodeSubmitted}
                   />
                 </div>
