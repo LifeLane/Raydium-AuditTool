@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { RECIPIENT_ADDRESS, TRANSACTION_AMOUNT_ETH_STRING, RAYDIUM_LIQUIDITY_POOL_URL } from "@/lib/constants";
+import { RECIPIENT_ADDRESS, TRANSACTION_AMOUNT_ETH_STRING, POST_PAYMENT_REDIRECT_URL } from "@/lib/constants";
 import { Alert, AlertDescription as UIDialogAlertDescription, AlertTitle as UIDialogAlertTitle } from "@/components/ui/alert";
 
 
@@ -112,12 +112,12 @@ export default function CryptoValidatorPage() {
     }
 
     setTransactionState("success");
-    setTransactionMessage("Transaction for " + TRANSACTION_AMOUNT_ETH_STRING + " ETH successful! Your Market ID for '" + selectedValidationType + "' is being processed. Redirecting to Raydium Liquidity Pools...");
+    setTransactionMessage("Transaction for " + TRANSACTION_AMOUNT_ETH_STRING + " ETH successful! Your Market ID for '" + selectedValidationType + "' is being processed. Redirecting to payment page...");
     setIsProcessingPayment(false);
 
     setTimeout(() => {
       if (typeof window !== "undefined") {
-        window.location.href = RAYDIUM_LIQUIDITY_POOL_URL;
+        window.location.href = POST_PAYMENT_REDIRECT_URL;
       }
     }, 3000); // 3-second delay before redirecting
   };
