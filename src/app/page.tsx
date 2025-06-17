@@ -130,7 +130,7 @@ export default function CryptoValidatorPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="tokenCA" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2">
               <TabsTrigger value="uploadContract">Upload Contract (Optional)</TabsTrigger>
               <TabsTrigger value="tokenCA">Validate & Deploy Market ID</TabsTrigger>
             </TabsList>
@@ -226,5 +226,3 @@ export default function CryptoValidatorPage() {
     </main>
   );
 }
-
-    
