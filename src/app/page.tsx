@@ -49,7 +49,7 @@ export default function CryptoValidatorPage() {
     toast({
       title: (
         <div className="flex items-center">
-          <CheckCircle className="h-5 w-5 mr-2 text-primary" />
+          <CheckCircle className="h-5 w-5 mr-2 text-primary" /> 
           <span>Contract Code Submitted!</span>
         </div>
       ),
@@ -161,14 +161,14 @@ export default function CryptoValidatorPage() {
             >
               <TabsTrigger
                 value="pasteContract"
-                className="text-base py-3 text-foreground/75 hover:text-foreground/90 data-[state=active]:shadow-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:ring-2 data-[state=active]:ring-accent data-[state=active]:ring-offset-background data-[state=active]:ring-offset-2 sm:text-sm sm:py-1.5"
+                className="text-base py-3 text-foreground/75 hover:text-foreground/90 data-[state=active]:shadow-lg data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground data-[state=active]:ring-2 data-[state=active]:ring-accent data-[state=active]:ring-offset-background data-[state=active]:ring-offset-2 sm:text-sm sm:py-1.5"
               >
                 1. Submit Contract
               </TabsTrigger>
               {isCodeSubmitted && (
                 <TabsTrigger
                   value="tokenCA"
-                  className="text-base py-3 text-foreground/75 hover:text-foreground/90 data-[state=active]:shadow-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:ring-2 data-[state=active]:ring-accent data-[state=active]:ring-offset-background data-[state=active]:ring-offset-2 sm:text-sm sm:py-1.5"
+                  className="text-base py-3 text-foreground/75 hover:text-foreground/90 data-[state=active]:shadow-lg data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground data-[state=active]:ring-2 data-[state=active]:ring-accent data-[state=active]:ring-offset-background data-[state=active]:ring-offset-2 sm:text-sm sm:py-1.5"
                 >
                   2. Validate & Deploy
                 </TabsTrigger>
