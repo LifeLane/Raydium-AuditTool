@@ -130,9 +130,9 @@ export default function CryptoValidatorPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="uploadContract" className="w-full">
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2">
-              <TabsTrigger value="uploadContract">Upload Contract</TabsTrigger>
-              <TabsTrigger value="tokenCA">Validate & Deploy Market ID</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto">
+              <TabsTrigger value="uploadContract" className="text-base py-3 data-[state=active]:shadow-md sm:text-sm sm:py-1.5">Upload Contract</TabsTrigger>
+              <TabsTrigger value="tokenCA" className="text-base py-3 data-[state=active]:shadow-md sm:text-sm sm:py-1.5">Validate & Deploy Market ID</TabsTrigger>
             </TabsList>
             
             <TabsContent value="uploadContract" className="mt-6 p-4 border rounded-md bg-card/50">
