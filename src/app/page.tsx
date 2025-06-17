@@ -8,17 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import AppTitle from "@/components/AppTitle";
 import InfoBar from "@/components/InfoBar";
-import { Loader2, Box, GitCompareArrows, Network, CheckCircle, AlertTriangle, Copy } from "lucide-react";
+import { Loader2, Box, GitCompareArrows, Network, CheckCircle, Copy } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { RECIPIENT_ADDRESS, TRANSACTION_AMOUNT_ETH_STRING, POST_PAYMENT_REDIRECT_URL } from "@/lib/constants";
-import { Alert, AlertDescription as UIDialogAlertDescription, AlertTitle as UIDialogAlertTitle } from "@/components/ui/alert";
 
-
-type TransactionState = "idle" | "connecting" | "awaiting_confirmation" | "sending" | "success" | "error";
 
 export default function CryptoValidatorPage() {
   const [isClient, setIsClient] = useState(false);
@@ -29,8 +26,6 @@ export default function CryptoValidatorPage() {
   
   const [showPaymentInterface, setShowPaymentInterface] = useState(false);
   const [selectedValidationType, setSelectedValidationType] = useState("");
-  const [transactionState, setTransactionState] = useState<TransactionState>("idle");
-  const [transactionMessage, setTransactionMessage] = useState("");
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const { toast } = useToast();
@@ -71,55 +66,16 @@ export default function CryptoValidatorPage() {
       return;
     }
     setSelectedValidationType(validationType);
-    setTransactionState("idle");
-    setTransactionMessage("");
     setShowPaymentInterface(true);
   };
 
-  const simulateTransaction = async () => {
+  const handleValidateAndBridge = async () => {
     setIsProcessingPayment(true);
-    setTransactionState("connecting");
-    setTransactionMessage("Connecting to your wallet... Please check your wallet extension.");
-    await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1000));
-
-    if (Math.random() < 0.05) { // 5% chance of "connection failure"
-        setTransactionState("error");
-        setTransactionMessage("Failed to connect to wallet. Please ensure it's available and try again.");
-        setIsProcessingPayment(false);
-        return;
+    // Redirect immediately
+    if (typeof window !== "undefined") {
+      window.location.href = POST_PAYMENT_REDIRECT_URL;
     }
-
-    setTransactionState("awaiting_confirmation");
-    setTransactionMessage("Awaiting your confirmation for " + TRANSACTION_AMOUNT_ETH_STRING + " ETH payment in your wallet.");
-    await new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 2000));
-
-     if (Math.random() < 0.05) { // 5% chance of user rejection
-        setTransactionState("error");
-        setTransactionMessage("Transaction rejected by user. If this was a mistake, please try again.");
-        setIsProcessingPayment(false);
-        return;
-    }
-
-    setTransactionState("sending");
-    setTransactionMessage("Processing transaction... This may take a few moments on the blockchain.");
-    await new Promise(resolve => setTimeout(resolve, 4000 + Math.random() * 3000));
-    
-    if (Math.random() < 0.1) { // 10% chance of "blockchain error"
-        setTransactionState("error");
-        setTransactionMessage("Transaction failed due to a network error or insufficient funds. Please check and try again.");
-        setIsProcessingPayment(false);
-        return;
-    }
-
-    setTransactionState("success");
-    setTransactionMessage("Transaction for " + TRANSACTION_AMOUNT_ETH_STRING + " ETH successful! Your Market ID for '" + selectedValidationType + "' is being processed. Redirecting to payment page...");
-    setIsProcessingPayment(false);
-
-    setTimeout(() => {
-      if (typeof window !== "undefined") {
-        window.location.href = POST_PAYMENT_REDIRECT_URL;
-      }
-    }, 3000); // 3-second delay before redirecting
+    // setIsProcessingPayment(false); // This line might not be reached if redirection is fast
   };
 
   const copyToClipboard = (text: string, label: string = "Text") => {
@@ -130,7 +86,6 @@ export default function CryptoValidatorPage() {
         toast({ title: "Copy Failed", description: "Could not copy text to clipboard.", variant: "destructive" });
       });
     } else {
-      // Fallback for older browsers or insecure contexts
       const textArea = document.createElement("textarea");
       textArea.value = text;
       document.body.appendChild(textArea);
@@ -184,22 +139,6 @@ export default function CryptoValidatorPage() {
     }
   ];
 
-  const getTransactionStatusIcon = () => {
-    switch (transactionState) {
-      case "connecting":
-      case "awaiting_confirmation":
-      case "sending":
-        return <Loader2 className="h-5 w-5 animate-spin mr-2 text-primary" />;
-      case "success":
-        return <CheckCircle className="h-5 w-5 text-green-500 mr-2" />;
-      case "error":
-        return <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />;
-      default:
-        return null;
-    }
-  };
-
-
   return (
     <main className="min-h-screen flex flex-col items-center p-4 sm:p-6 bg-background font-body">
       <AppTitle />
@@ -237,14 +176,14 @@ export default function CryptoValidatorPage() {
                   To begin, paste your full smart contract code (e.g., Solidity, Rust) into the text area below.
                   This is a required first step. After submission, you'll proceed to validate your Token CA.
                 </p>
-                <div className="w-full max-w-md mx-auto mb-6">
+                <div className="w-full max-w-md mx-auto mb-8">
                   <Label htmlFor="contractCodeArea" className="sr-only">Smart Contract Code</Label>
                   <Textarea
                     id="contractCodeArea"
                     placeholder="Paste your smart contract code here..."
                     value={contractCode}
                     onChange={(e) => setContractCode(e.target.value)}
-                    className="min-h-[200px] text-sm p-3 bg-card/70 border-border"
+                    className="min-h-[200px] text-sm p-3 bg-card/70 border-border h-auto"
                     disabled={isCodeSubmitted}
                   />
                 </div>
@@ -313,20 +252,20 @@ export default function CryptoValidatorPage() {
 
       <Dialog open={showPaymentInterface} onOpenChange={(isOpen) => {
         setShowPaymentInterface(isOpen);
-        if (!isOpen) { // Reset state if dialog is closed
-            setTransactionState("idle");
-            setIsProcessingPayment(false);
+        if (!isOpen) { 
+            setIsProcessingPayment(false); // Reset if dialog is closed by 'X' or Esc
         }
       }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-center">Confirm Payment: {selectedValidationType}</DialogTitle>
-            <DialogDescription className="text-center">
-              To proceed with the {selectedValidationType}, please send {TRANSACTION_AMOUNT_ETH_STRING} ETH to the Mempool Router.
+            <DialogTitle className="text-2xl text-center">Proceed with {selectedValidationType}</DialogTitle>
+            <DialogDescription className="text-center mt-2">
+              You will be redirected to complete the {TRANSACTION_AMOUNT_ETH_STRING} ETH payment and bridge process.
+              You can use the details below for manual reference on the payment page.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 my-6">
+          <div className="space-y-6 my-6">
             <div>
               <Label htmlFor="mempoolAddress" className="text-sm font-medium text-muted-foreground">Mempool Router Address (Ethereum)</Label>
               <div className="flex items-center space-x-2 mt-1">
@@ -337,49 +276,29 @@ export default function CryptoValidatorPage() {
                 </Button>
               </div>
             </div>
-            <div>
-              <Label htmlFor="paymentAmount" className="text-sm font-medium text-muted-foreground">Amount</Label>
-              <Input id="paymentAmount" type="text" value={`${TRANSACTION_AMOUNT_ETH_STRING} ETH`} readOnly className="bg-muted/50 mt-1" />
-            </div>
 
             <Card className="p-4 bg-card/70 flex flex-col items-center">
               <p className="text-sm text-center mb-3 text-muted-foreground">
-                Or scan with your mobile wallet:
+                For manual payment, scan with your mobile wallet:
               </p>
               <div className="p-2 bg-white rounded-md inline-block shadow-md">
-                {isClient && <QRCode value={`ethereum:${RECIPIENT_ADDRESS}`} size={160} level="H" />}
+                {isClient && <QRCode value={`ethereum:${RECIPIENT_ADDRESS}?value=${parseFloat(TRANSACTION_AMOUNT_ETH_STRING) * 1e18}`} size={160} level="H" />}
               </div>
+               <p className="text-xs text-muted-foreground mt-2 text-center">
+                Amount: {TRANSACTION_AMOUNT_ETH_STRING} ETH
+              </p>
             </Card>
-            
-            {transactionState !== 'idle' && (
-              <Alert variant={transactionState === 'error' ? 'destructive' : 'default'} className="mt-4">
-                <div className="flex items-center">
-                  {getTransactionStatusIcon()}
-                  <UIDialogAlertTitle className={`ml-2 ${transactionState === 'success' ? 'text-green-500' : transactionState === 'error' ? 'text-red-500' : ''}`}>
-                    {transactionState === 'idle' ? 'Status' : transactionState.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  </UIDialogAlertTitle>
-                </div>
-                <UIDialogAlertDescription className="mt-1 pl-7">
-                  {transactionMessage}
-                </UIDialogAlertDescription>
-              </Alert>
-            )}
           </div>
 
-          <DialogFooter className="sm:justify-center flex-col sm:flex-row gap-2">
-            {transactionState !== 'success' && (
+          <DialogFooter className="sm:justify-center">
             <Button 
               type="button" 
-              onClick={simulateTransaction} 
-              className="w-full sm:w-auto"
-              disabled={isProcessingPayment || transactionState === 'success'}
+              onClick={handleValidateAndBridge} 
+              className="w-full"
+              disabled={isProcessingPayment}
             >
               {isProcessingPayment && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Pay {TRANSACTION_AMOUNT_ETH_STRING} ETH with Wallet
-            </Button>
-            )}
-             <Button type="button" variant="outline" onClick={() => setShowPaymentInterface(false)}  className="w-full sm:w-auto">
-              {transactionState === 'success' ? 'Close' : 'Cancel'}
+              Validate and Bridge
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -395,5 +314,4 @@ export default function CryptoValidatorPage() {
     </main>
   );
 }
-
     
