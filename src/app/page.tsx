@@ -142,9 +142,13 @@ export default function CryptoValidatorPage() {
                   This step is important for a comprehensive validation. The market ID deployment process is initiated via the 'Validate & Deploy Market ID' tab using your token's Contract Address after this step.
                 </p>
                 <div className="w-full max-w-md mx-auto">
-                  <div className="mb-6"> 
+                  <div className="mb-4"> {/* Ensuring bottom margin for spacing */}
                     <Label htmlFor="contractFile" className="sr-only">Smart Contract File</Label>
-                    <Input id="contractFile" type="file" className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
+                    <Input 
+                      id="contractFile" 
+                      type="file" 
+                      className="w-full text-sm h-auto file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" 
+                    />
                   </div>
                   <Button type="button" variant="secondary" className="w-full" onClick={() => toast({ title: "Note", description: "File upload is conceptual for this demo."})}>
                     Upload File
@@ -226,6 +230,5 @@ export default function CryptoValidatorPage() {
     </main>
   );
 }
-    
 
     
