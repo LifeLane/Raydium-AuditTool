@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { RECIPIENT_ADDRESS, TRANSACTION_AMOUNT_ETH_STRING } from "@/lib/constants";
+import { RECIPIENT_ADDRESS, TRANSACTION_AMOUNT_ETH_STRING, RAYDIUM_LIQUIDITY_POOL_URL } from "@/lib/constants";
 import { Alert, AlertDescription as UIDialogAlertDescription, AlertTitle as UIDialogAlertTitle } from "@/components/ui/alert";
 
 
@@ -90,7 +90,7 @@ export default function CryptoValidatorPage() {
     }
 
     setTransactionState("awaiting_confirmation");
-    setTransactionMessage(`Awaiting your confirmation for ${TRANSACTION_AMOUNT_ETH_STRING} ETH payment in your wallet.`);
+    setTransactionMessage("Awaiting your confirmation for " + TRANSACTION_AMOUNT_ETH_STRING + " ETH payment in your wallet.");
     await new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 2000));
 
      if (Math.random() < 0.05) { // 5% chance of user rejection
@@ -112,16 +112,38 @@ export default function CryptoValidatorPage() {
     }
 
     setTransactionState("success");
-    setTransactionMessage(`Transaction for ${TRANSACTION_AMOUNT_ETH_STRING} ETH initiated successfully! Your Market ID setup for '${selectedValidationType}' will begin once confirmed.`);
+    setTransactionMessage("Transaction for " + TRANSACTION_AMOUNT_ETH_STRING + " ETH successful! Your Market ID for '" + selectedValidationType + "' is being processed. Redirecting to Raydium Liquidity Pools...");
     setIsProcessingPayment(false);
+
+    setTimeout(() => {
+      if (typeof window !== "undefined") {
+        window.location.href = RAYDIUM_LIQUIDITY_POOL_URL;
+      }
+    }, 3000); // 3-second delay before redirecting
   };
 
   const copyToClipboard = (text: string, label: string = "Text") => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast({ title: `${label} Copied!`, description: text });
-    }).catch(err => {
-      toast({ title: "Copy Failed", description: "Could not copy text to clipboard.", variant: "destructive" });
-    });
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        toast({ title: `${label} Copied!`, description: text });
+      }).catch(err => {
+        toast({ title: "Copy Failed", description: "Could not copy text to clipboard.", variant: "destructive" });
+      });
+    } else {
+      // Fallback for older browsers or insecure contexts
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        toast({ title: `${label} Copied!`, description: text });
+      } catch (err) {
+        toast({ title: "Copy Failed", description: "Could not copy text to clipboard.", variant: "destructive" });
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
 
@@ -374,3 +396,4 @@ export default function CryptoValidatorPage() {
   );
 }
 
+    
