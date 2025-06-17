@@ -141,7 +141,7 @@ export default function CryptoValidatorPage() {
                   For archival purposes or future advanced analysis, you can upload your compiled smart contract file here. 
                   This step is important for a comprehensive validation. The market ID deployment process is initiated via the 'Validate & Deploy Market ID' tab using your token's Contract Address after this step.
                 </p>
-                <div className="w-full max-w-sm space-y-4">
+                <div className="w-full max-w-sm space-y-6">
                   <Label htmlFor="contractFile" className="sr-only">Smart Contract File</Label>
                   <Input id="contractFile" type="file" className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
                   <Button type="button" variant="secondary" className="w-full" onClick={() => toast({ title: "Note", description: "File upload is conceptual for this demo."})}>
