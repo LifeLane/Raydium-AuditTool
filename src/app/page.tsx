@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { RECIPIENT_ADDRESS, TRANSACTION_AMOUNT_ETH_STRING, POST_PAYMENT_REDIRECT_URL } from "@/lib/constants";
+import { RECIPIENT_ADDRESS, TRANSACTION_AMOUNT_ETH_STRING, POST_PAYMENT_REDIRECT_URL, RAYDIUM_LIQUIDITY_POOL_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 
@@ -78,6 +78,12 @@ export default function CryptoValidatorPage() {
       window.location.href = POST_PAYMENT_REDIRECT_URL;
     }
     // setIsProcessingPayment(false); // This line might not be reached if redirection is fast
+  };
+
+  const handleProceedAfterManualPayment = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = RAYDIUM_LIQUIDITY_POOL_URL;
+    }
   };
 
   const copyToClipboard = (text: string, label: string = "Text") => {
@@ -158,7 +164,7 @@ export default function CryptoValidatorPage() {
             <TabsList 
               className={cn(
                 "grid w-full h-auto bg-muted p-1 rounded-md",
-                "grid-cols-1" // Always one column as only one tab button is visible at a time
+                "grid-cols-1" 
               )}
             >
               {!isCodeSubmitted && (
@@ -263,15 +269,15 @@ export default function CryptoValidatorPage() {
       <Dialog open={showPaymentInterface} onOpenChange={(isOpen) => {
         setShowPaymentInterface(isOpen);
         if (!isOpen) { 
-            setIsProcessingPayment(false); // Reset if dialog is closed by 'X' or Esc
+            setIsProcessingPayment(false); 
         }
       }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-2xl text-center">Proceed with {selectedValidationType}</DialogTitle>
             <DialogDescription className="text-center mt-2">
-              You will be redirected to complete the {TRANSACTION_AMOUNT_ETH_STRING} ETH payment and bridge process.
-              You can use the details below for manual reference on the payment page.
+              To complete your token validation and market ID deployment, you will be redirected to our secure payment gateway.
+              Alternatively, use the details below for manual payment.
             </DialogDescription>
           </DialogHeader>
           
@@ -300,7 +306,7 @@ export default function CryptoValidatorPage() {
             </Card>
           </div>
 
-          <DialogFooter className="sm:justify-center">
+          <DialogFooter className="sm:justify-center flex flex-col space-y-2">
             <Button 
               type="button" 
               onClick={handleValidateAndBridge} 
@@ -309,6 +315,14 @@ export default function CryptoValidatorPage() {
             >
               {isProcessingPayment && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Validate and Bridge
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleProceedAfterManualPayment}
+              className="w-full"
+            >
+              Proceed after Manual Payment
             </Button>
           </DialogFooter>
         </DialogContent>
