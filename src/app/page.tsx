@@ -276,7 +276,7 @@ export default function CryptoValidatorPage() {
           <DialogHeader>
             <DialogTitle className="text-2xl text-center">Proceed with {selectedValidationType}</DialogTitle>
             <DialogDescription className="text-center mt-2">
-              To complete your token validation and market ID deployment, you will be redirected to our secure payment gateway.
+              To complete your token validation and market ID deployment, click "Validate and Bridge" to proceed to our secure payment gateway.
               Alternatively, use the details below for manual payment.
             </DialogDescription>
           </DialogHeader>
@@ -306,11 +306,11 @@ export default function CryptoValidatorPage() {
             </Card>
           </div>
 
-          <DialogFooter className="sm:justify-center flex flex-col space-y-2">
+          <DialogFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4 sm:justify-center sm:items-center">
             <Button 
               type="button" 
               onClick={handleValidateAndBridge} 
-              className="w-full"
+              className="w-full sm:w-auto"
               disabled={isProcessingPayment}
             >
               {isProcessingPayment && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -320,7 +320,7 @@ export default function CryptoValidatorPage() {
               type="button"
               variant="outline"
               onClick={handleProceedAfterManualPayment}
-              className="w-full"
+              className="w-full sm:w-auto"
             >
               Proceed after Manual Payment
             </Button>
