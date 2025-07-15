@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'CryptoValidator',
+  title: 'Raydium Tools',
   description: 'Validate your token and create its market ID.',
 };
 

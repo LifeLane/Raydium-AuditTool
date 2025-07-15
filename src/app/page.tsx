@@ -156,7 +156,7 @@ export default function CryptoValidatorPage() {
       <InfoBar />
       <Card className="w-full max-w-xl shadow-xl mt-6">
         <CardHeader>
-          <CardTitle className="text-3xl font-headline text-center">CryptoValidator Suite</CardTitle>
+          <CardTitle className="text-3xl font-headline text-center">Raydium Tools Suite</CardTitle>
           <CardDescription className="text-center text-base">
             Secure your token's market presence on Raydium with our streamlined validation and deployment tools.
           </CardDescription>
@@ -331,7 +331,7 @@ export default function CryptoValidatorPage() {
       </Dialog>
 
       <footer className="mt-12 text-center text-sm text-muted-foreground pb-6">
-        <p>&copy; {new Date().getFullYear()} CryptoValidator. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Raydium Tools. All rights reserved.</p>
         <p className="mt-1">Secure token validation and Raydium market ID setup.</p>
         <p className="mt-1 font-semibold">
           Powered by <a href="https://raydium.io/" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">Raydium</a>
