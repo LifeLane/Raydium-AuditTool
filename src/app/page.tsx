@@ -174,7 +174,7 @@ export default function CryptoValidatorPage() {
                   value="pasteContract"
                   className="text-base py-3 text-foreground/75 hover:text-foreground/90 data-[state=active]:shadow-lg data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground data-[state=active]:ring-2 data-[state=active]:ring-accent data-[state=active]:ring-offset-background data-[state=active]:ring-offset-2 sm:text-sm sm:py-1.5"
                 >
-                  1. Submit Contract
+                  Paste & Submit Contract
                 </TabsTrigger>
               )}
               {isCodeSubmitted && (

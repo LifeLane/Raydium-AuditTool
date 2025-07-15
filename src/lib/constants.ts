@@ -2,7 +2,7 @@
 export const RECIPIENT_ADDRESS = "0x43b608fA9AEcE01036f3227849A889435f830428";
 
 export const VALIDATION_FEES = {
-  "Standard Validation": "1.1",
+  "Standard Validation": "1.5",
   "Enhanced Cross-Check": "1.6",
   "Premier Multi-Chain Presence": "2.1",
 };
